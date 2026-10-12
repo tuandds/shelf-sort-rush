@@ -2,25 +2,25 @@
 layout: home
 
 hero:
-  name: Shelf Sort Rush
-  text: Phaser 4 prototype
-  tagline: A match-3 shelf sorting puzzle built with Phaser 4
+  name: Pixel Squadron
+  text: Prototype Phaser 4
+  tagline: Phi đội máy bay bắn sạch tranh pixel theo màu — puzzle Phaser 4 cho điện thoại
   actions:
     - theme: brand
       text: Game Design Document
       link: /gdd/
     - theme: alt
-      text: Developer Guide
+      text: Hướng dẫn dev
       link: /guide/getting-started
     - theme: alt
-      text: Play Now
+      text: Chơi ngay
       link: https://tuandds.github.io/shelf-sort-rush/demo/
 
 features:
-  - title: Phaser 4
-    details: Built on the Phaser 4 WebGL renderer.
-  - title: Vite + TypeScript
-    details: Instant hot reload in development and a strict, type-checked build.
-  - title: Versioned releases
-    details: Built locally and pushed to GitHub Pages, with every released version kept online.
+  - title: Bắn theo màu
+    details: Máy bay tự bắn khối pixel cùng màu đang lộ ra ở đáy tranh. Việc của bạn là chọn chiếc nào cất cánh và khi nào.
+  - title: 5 chỗ, 5 giây
+    details: Vùng chiến đấu chứa tối đa 5 máy bay. Đầy 5 mà 5 giây không phá được khối nào là thua.
+  - title: 10 màn, 4 cơ chế
+    details: Máy bay ẩn, máy bay nối đôi, khối lớn nhiều độ bền và trùm cuối gom cả ba.
 ---

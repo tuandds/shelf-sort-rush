@@ -13,7 +13,8 @@ const demo = `${new URL(SITE).origin}${base.replace(/docs\/$/, 'demo/')}`;
 
 export default defineConfig({
     title: project.title,
-    description: `Documentation for ${project.title}`,
+    lang: 'vi',
+    description: `Tài liệu ${project.title}`,
     base,
     cleanUrls: true,
     ignoreDeadLinks: 'localhostLinks',
@@ -21,7 +22,7 @@ export default defineConfig({
         nav: [
             { text: 'Game Design', link: '/gdd/' },
             { text: 'Guide', link: '/guide/getting-started' },
-            { text: 'Play', link: demo },
+            { text: 'Chơi', link: demo },
             {
                 text: version,
                 items: [
@@ -34,23 +35,25 @@ export default defineConfig({
         outline: { level: [2, 3] },
         sidebar: {
             '/gdd/': [
-                { text: 'Game Design Document', items: [{ text: 'Contents', link: '/gdd/' }] },
+                { text: 'Game Design Document', items: [{ text: 'Mục lục', link: '/gdd/' }] },
                 {
-                    text: 'I. Vision',
-                    items: [{ text: '1. Overview', link: '/gdd/overview' }]
+                    text: 'I. Tầm nhìn',
+                    items: [{ text: '1. Tổng quan', link: '/gdd/overview' }]
                 },
                 {
                     text: 'II. Gameplay',
                     items: [
-                        { text: '2. Core loop', link: '/gdd/core-loop' },
-                        { text: '3. Rules & mechanics', link: '/gdd/rules' }
+                        { text: '2. Vòng lặp chơi', link: '/gdd/core-loop' },
+                        { text: '3. Luật & cơ chế', link: '/gdd/rules' },
+                        { text: '4. Màn chơi', link: '/gdd/levels' },
+                        { text: '5. Giao diện & phản hồi', link: '/gdd/ui' }
                     ]
                 },
                 {
-                    text: 'III. Production',
+                    text: 'III. Sản xuất',
                     items: [
-                        { text: '4. Roadmap & open questions', link: '/gdd/roadmap' },
-                        { text: '5. Changelog', link: '/gdd/changelog' }
+                        { text: '6. Lộ trình & câu hỏi mở', link: '/gdd/roadmap' },
+                        { text: '7. Changelog', link: '/gdd/changelog' }
                     ]
                 }
             ],
