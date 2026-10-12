@@ -1,0 +1,8 @@
+{
+  "title": "Shelf Sort Rush",
+  "tagline": "A match-3 shelf sorting puzzle built with Phaser 4",
+  "repo": "tuandds/shelf-sort-rush",
+  "pagesUrl": "https://tuandds.github.io/shelf-sort-rush",
+  "basePath": "/shelf-sort-rush",
+  "devPort": 8080
+}
