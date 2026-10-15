@@ -45,9 +45,10 @@
   /* ---------- panels ---------- */
   .edit-panels { flex: 1; display: flex; gap: 0; padding: 10px; min-height: 0; }
   .edit-panel { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 12px; overflow: auto; min-width: 0; }
-  #panel-colour { flex: 0 0 230px; }
-  #panel-wave { flex: 1 1 520px; }
-  #panel-board { flex: 0 1 470px; }
+  #panel-colour { flex: 0 0 200px; }
+  #panel-wave { flex: 1 1 480px; }
+  #panel-plane { flex: 0 0 450px; }
+  #panel-bank { flex: 0 0 270px; display: flex; flex-direction: column; }
   .panel-resizer { flex: 0 0 10px; display: grid; place-items: center; cursor: col-resize; }
   .panel-resizer::after { content: ''; width: 2px; height: 34px; border-radius: 2px; background: #334155; }
   .panel-title { display: flex; justify-content: space-between; align-items: center; padding-bottom: 8px; margin-bottom: 10px;
@@ -64,11 +65,11 @@
   .btn.on { background: var(--gold); color: #1f1300; border-color: var(--gold); }
 
   /* colour bank */
-  .palette { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+  .palette { display: grid; grid-template-columns: 1fr; gap: 5px; }
   .swatch { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border-radius: 9px; border: 1.5px solid var(--line);
     background: var(--panel2); text-align: left; }
   .swatch i { width: 22px; height: 22px; border-radius: 6px; flex: 0 0 auto; box-shadow: inset 0 -3px 0 rgba(0,0,0,.2), inset 0 3px 0 rgba(255,255,255,.25); }
-  .swatch span { font-weight: 700; font-size: 11px; line-height: 1.15; }
+  .swatch span { font-weight: 700; font-size: 11.5px; line-height: 1.15; flex: 1; display: flex; justify-content: space-between; align-items: center; }
   .swatch em { display: block; font-style: normal; color: var(--dim); font-size: 10px; font-weight: 600; }
   .swatch.on { border-color: var(--gold); background: #2a2208; }
   .tools { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
@@ -118,13 +119,66 @@
   .stat b { display: block; font-size: 16px; }
   .stat span { color: var(--dim); font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .8px; }
   .hangars { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
-  .hangar { background: var(--panel2); border: 1px solid var(--line); border-radius: 9px; padding: 6px; min-height: 60px; }
+  .hangar { background: var(--panel2); border: 1px solid var(--line); border-radius: 9px; padding: 5px; min-height: 60px; min-width: 0; }
   .hangar h4 { margin: 0 0 4px; font-size: 10px; color: var(--dim); letter-spacing: 1px; }
   .plane { display: flex; align-items: center; gap: 6px; padding: 2px 4px; border-radius: 6px; font-weight: 800; font-size: 11px; }
   .plane i { width: 14px; height: 14px; border-radius: 4px; }
   .plane.hidden i { background: #4b5578 !important; }
   .plane.link { box-shadow: inset 0 0 0 1.5px #ffd666; }
   .plane u { text-decoration: none; color: #ffd666; font-size: 10px; margin-left: auto; }
+
+  /* plane editor */
+  .seg { display: flex; gap: 2px; padding: 3px; border-radius: 10px; background: #0b1226; border: 1px solid var(--line); }
+  .seg button { flex: 1; border: 0; background: transparent; padding: 7px 10px; border-radius: 8px; font-weight: 800; color: var(--mute); }
+  .seg button.on { background: var(--gold); color: #1f1300; }
+  .balance { display: flex; flex-wrap: wrap; gap: 5px; }
+  .bal { display: inline-flex; align-items: center; gap: 5px; padding: 2px 8px 2px 4px; border-radius: 99px; font-weight: 800; font-size: 11px;
+    border: 1px solid #166534; background: #052e1a; color: #bbf7d0; }
+  .bal i { width: 12px; height: 12px; border-radius: 4px; }
+  .bal.short { border-color: #991b1b; background: #2a1215; color: #fecaca; }
+  .bal.over { border-color: #a16207; background: #2a2208; color: #fde68a; }
+  .hangar.drop { border-color: var(--gold); }
+  .mplane { display: flex; align-items: center; gap: 2px; padding: 2px; border-radius: 7px; background: #0b1226; margin-bottom: 3px;
+    border: 1px solid transparent; cursor: grab; }
+  .mplane.link { border-color: #ffd666; }
+  .mplane.dragging { opacity: .4; }
+  .mplane.head { box-shadow: inset 3px 0 0 var(--green); }
+  .mplane .sw { width: 18px; height: 20px; border-radius: 5px; border: 0; flex: 0 0 auto; padding: 0; }
+  .mplane input { width: 32px; min-width: 0; padding: 2px 1px; font-weight: 800; text-align: center; font-size: 11px; -moz-appearance: textfield; }
+  .mplane input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+  .mplane input.lk { width: 26px; color: #ffd666; }
+  .mplane .ic { border: 1px solid var(--line2); background: #13203a; border-radius: 5px; width: 18px; height: 20px; flex: 0 0 auto; padding: 0; font-size: 11px; font-weight: 900; color: var(--dim); }
+  .mplane .ic.on { background: #4b5578; color: #fff; border-color: #94a3b8; }
+  .mplane .x { border: 0; background: transparent; color: var(--dim); padding: 0 1px; margin-left: auto; }
+  .mplane .x:hover { color: var(--red); }
+  .add-plane { width: 100%; margin-top: 2px; border: 1px dashed var(--line2); background: transparent; color: var(--mute); border-radius: 7px; padding: 4px; font-weight: 700; }
+  .popover { position: fixed; z-index: 60; display: grid; grid-template-columns: repeat(5, 22px); gap: 4px; padding: 6px; border-radius: 9px;
+    background: #020617; border: 1px solid var(--line2); box-shadow: 0 10px 30px rgba(0,0,0,.6); }
+  .popover button { width: 22px; height: 22px; border-radius: 5px; border: 0; padding: 0; }
+
+  /* level bank */
+  .bank-list { flex: 1; overflow: auto; display: flex; flex-direction: column; gap: 6px; margin: 8px 0; min-height: 120px; }
+  .lvcard { display: flex; gap: 8px; align-items: center; padding: 6px; border-radius: 10px; border: 1.5px solid var(--line); background: var(--panel2);
+    cursor: pointer; position: relative; }
+  .lvcard:hover { border-color: #334155; }
+  .lvcard.on { border-color: var(--gold); background: #1a1708; }
+  .lvcard canvas { flex: 0 0 auto; border-radius: 5px; background: #070b16; }
+  .lvcard .meta { min-width: 0; flex: 1; }
+  .lvcard .meta b { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .lvcard .meta span { color: var(--dim); font-size: 10.5px; font-weight: 600; }
+  .lvcard .num { font-weight: 900; color: var(--mute); width: 18px; text-align: center; }
+  .lvcard .acts { position: absolute; right: 6px; top: 6px; display: none; gap: 2px; }
+  .lvcard:hover .acts { display: flex; }
+  .lvcard .acts button { border: 1px solid var(--line2); background: #13203a; border-radius: 5px; padding: 0 5px; font-size: 11px; }
+  .dot { width: 8px; height: 8px; border-radius: 99px; display: inline-block; margin-right: 4px; }
+  .store { border-top: 1px solid var(--line); padding-top: 8px; }
+  .store .row .btn { flex: 1; }
+  .saved-at { color: var(--dim); font-size: 10.5px; margin: 4px 0 6px; }
+  #backups { position: fixed; inset: 0; background: rgba(2,6,23,.8); display: none; align-items: center; justify-content: center; z-index: 90; }
+  #backups.show { display: flex; }
+  #backups .edit-panel { width: 440px; max-height: 70vh; }
+  .bk { display: flex; align-items: center; gap: 8px; padding: 6px 0; border-bottom: 1px solid #151e33; }
+  .bk span { flex: 1; }
 
   /* organizer */
   #organizer { flex: 1; padding: 10px; display: none; min-height: 0; }
@@ -148,8 +202,8 @@
     padding: 8px 14px; border-radius: 10px; font-weight: 700; opacity: 0; transition: opacity .2s; pointer-events: none; z-index: 200; }
   #toast.show { opacity: 1; }
 </style>
-  <script type="module" crossorigin src="./assets/editor-DwQi8csX.js"></script>
-  <link rel="modulepreload" crossorigin href="./assets/levelgen-BLMchrF4.js">
+  <script type="module" crossorigin src="./assets/editor-C3CzKrb_.js"></script>
+  <link rel="modulepreload" crossorigin href="./assets/levelgen-CahjsTt3.js">
 </head>
 <body>
 <div class="edit-header">
@@ -170,18 +224,18 @@
 </div>
 
 <div class="edit-panels" id="editor">
-  <!-- LEFT: colour bank + tools -->
+  <!-- 1: colour bank + tools -->
   <div class="edit-panel" id="panel-colour">
     <div class="panel-title"><span>🎨</span><span>Colour Bank</span></div>
     <div class="palette" id="palette"></div>
     <div class="elabel">Công cụ</div>
     <div class="tools" id="tools"></div>
     <div class="hint"><span class="kbd">1</span>–<span class="kbd">0</span> chọn màu · <span class="kbd">B</span> vẽ · <span class="kbd">E</span> tẩy · <span class="kbd">G</span> đổ màu · <span class="kbd">I</span> hút màu · <span class="kbd">Ctrl+Z</span> hoàn tác</div>
-    <div class="hint">Chuột phải trên lưới = tẩy.</div>
+    <div class="hint">Chuột phải trên lưới = tẩy. Màu đang chọn cũng là màu của máy bay thêm mới ở Plane Editor.</div>
   </div>
-  <div class="panel-resizer" data-resize="0"></div>
+  <div class="panel-resizer" data-target="panel-colour" data-sign="1"></div>
 
-  <!-- MIDDLE: wave editor -->
+  <!-- 2: wave editor -->
   <div class="edit-panel" id="panel-wave">
     <div class="panel-title"><span>🖌️</span><span>Wave Editor</span></div>
     <div class="validation ok" id="validation"></div>
@@ -206,14 +260,17 @@
     </div>
     <div class="row" style="margin-top:8px;">
       <button class="btn" id="w-flip">⇋ Lật ngang</button>
-      <button class="btn" id="w-up">↑ Dịch lên</button>
-      <button class="btn" id="w-down">↓ Dịch xuống</button>
-      <button class="btn" id="w-left">← Dịch trái</button>
-      <button class="btn" id="w-right">→ Dịch phải</button>
+      <button class="btn" id="w-up">↑</button>
+      <button class="btn" id="w-down">↓</button>
+      <button class="btn" id="w-left">←</button>
+      <button class="btn" id="w-right">→</button>
       <button class="btn danger" id="w-clear">Xoá trắng</button>
     </div>
     <div class="grid-wrap"><div id="grid"></div></div>
-    <div class="hint">dy âm = mảng còn nằm phía trên board, trôi vào sau khi các hàng dưới bị phá. Toàn đội hình luôn được căn giữa theo 21 cột khi chơi.</div>
+
+    <div class="elabel">Toàn đội hình trên board</div>
+    <div class="board-wrap" id="board-wrap"><canvas id="board"></canvas></div>
+    <div class="hint">Khung xanh = 10 hàng người chơi thấy đầu tiên · bấm một mảng để chọn · ✕ đỏ = hai mảng chồng nhau. dy âm = mảng nằm phía trên board, trôi vào sau. Đội hình luôn được căn giữa 21 cột khi chơi.</div>
 
     <div class="elabel">Cài đặt màn</div>
     <div class="setting-row"><label>Tên màn</label><input id="s-name" maxlength="40" style="flex:0 0 220px" /></div>
@@ -228,17 +285,58 @@
     <div id="mech-settings"></div>
     <div class="hint">Bấm lại cơ chế đang bật để tắt.</div>
   </div>
-  <div class="panel-resizer" data-resize="1"></div>
+  <div class="panel-resizer" data-target="panel-plane" data-sign="-1"></div>
 
-  <!-- RIGHT: board preview -->
-  <div class="edit-panel" id="panel-board">
-    <div class="panel-title"><span>🛩️</span><span>Board Preview</span></div>
-    <div class="board-wrap" id="board-wrap"><canvas id="board"></canvas></div>
-    <div class="hint">Vạch xanh = 10 hàng đầu tiên người chơi thấy. Bấm vào một mảng để chọn. Ô đỏ = hai mảng chồng lên nhau.</div>
+  <!-- 3: plane editor -->
+  <div class="edit-panel" id="panel-plane">
+    <div class="panel-title"><span>✈️</span><span>Plane Editor</span></div>
+    <div class="seg" id="plane-mode">
+      <button data-m="random">🎲 Ngẫu nhiên</button>
+      <button data-m="manual">✋ Xếp tay</button>
+    </div>
+    <div class="hint" id="plane-mode-hint"></div>
     <div class="stats" id="stats"></div>
-    <div class="elabel" style="display:flex;align-items:center;">Máy bay trong khoang (sinh thử)
-      <span class="spacer"></span><button class="btn" id="btn-reroll">🎲 Sinh lại</button></div>
+    <div class="elabel">Đạn theo màu (có / cần)</div>
+    <div class="balance" id="balance"></div>
+    <div class="elabel">3 khoang chứa <span style="text-transform:none;letter-spacing:0;font-weight:600;color:var(--dim)">· trên cùng = cất cánh trước</span></div>
+    <div id="plane-actions" class="row" style="margin-bottom:6px;"></div>
     <div class="hangars" id="hangars"></div>
+    <div class="hint" id="plane-hint"></div>
+  </div>
+  <div class="panel-resizer" data-target="panel-bank" data-sign="-1"></div>
+
+  <!-- 4: level bank -->
+  <div class="edit-panel" id="panel-bank">
+    <div class="panel-title"><span>🗂️</span><span>Level Bank</span></div>
+    <div class="row">
+      <button class="btn primary" id="bank-new" style="flex:1">＋ Màn mới</button>
+      <button class="btn" id="bank-dup" title="Nhân bản màn đang chọn">⧉</button>
+      <button class="btn danger" id="bank-del" title="Xoá màn đang chọn">🗑</button>
+    </div>
+    <div class="bank-list" id="bank-list"></div>
+    <div class="store">
+      <div class="elabel" style="margin-top:4px;">Lưu trữ</div>
+      <button class="btn primary" id="bank-save" style="width:100%">💾 Lưu vào trình duyệt (Ctrl+S)</button>
+      <div class="saved-at" id="saved-at"></div>
+      <div class="row" style="margin-bottom:6px;">
+        <button class="btn" id="bank-export">⬇ Xuất file</button>
+        <button class="btn" id="bank-import">⬆ Nhập file</button>
+      </div>
+      <div class="row" style="margin-bottom:6px;">
+        <button class="btn" id="bank-backups">🕘 Bản sao lưu</button>
+        <button class="btn" id="bank-copy-ts">⧉ Copy TS</button>
+      </div>
+      <button class="btn danger" id="bank-reset" style="width:100%">↺ Khôi phục 10 màn gốc</button>
+      <div class="hint">Trình duyệt giữ danh sách này trên máy bạn. Xuất file JSON để giữ lâu dài hoặc gửi cho người khác; Copy TS để đưa vào bản build (dán vào <code>LEVELS</code> trong <code>src/game/data.ts</code>).</div>
+    </div>
+  </div>
+</div>
+
+<div id="backups">
+  <div class="edit-panel">
+    <div class="panel-title"><span>🕘</span><span>Bản sao lưu</span></div>
+    <div id="backup-list"></div>
+    <div class="row" style="margin-top:10px;"><span class="spacer"></span><button class="btn" id="backups-close">Đóng</button></div>
   </div>
 </div>
 
@@ -246,19 +344,11 @@
 <div id="organizer">
   <div class="edit-panel">
     <div class="panel-title"><span>🗂️</span><span>Level Organizer</span></div>
-    <div class="row" style="margin-bottom:10px;">
-      <button class="btn primary" id="org-new">＋ Màn mới</button>
-      <button class="btn" id="org-export">⬇ Xuất tất cả (JSON)</button>
-      <button class="btn" id="org-import">⬆ Nhập danh sách (JSON)</button>
-      <button class="btn" id="org-copy-ts">⧉ Copy TypeScript</button>
-      <span class="spacer"></span>
-      <button class="btn danger" id="org-reset">↺ Khôi phục 10 màn gốc</button>
-    </div>
     <table>
-      <thead><tr><th>#</th><th>Xem trước</th><th>Tên màn</th><th>Màu</th><th>Khối</th><th>Máy bay</th><th>Mảng</th><th>Cơ chế</th><th>Kiểm tra</th><th></th></tr></thead>
+      <thead><tr><th>#</th><th>Xem trước</th><th>Tên màn</th><th>Màu</th><th>Khối</th><th>Máy bay</th><th>Mảng</th><th>Cơ chế</th><th>Khoang</th><th>Kiểm tra</th><th></th></tr></thead>
       <tbody id="org-body"></tbody>
     </table>
-    <div class="hint">Danh sách này lưu trong trình duyệt (localStorage). Game đọc nó khi mở với <code>?custom=1</code>. Muốn đưa vào bản build chính thức: Copy TypeScript rồi dán vào <code>LEVELS</code> trong <code>src/game/data.ts</code>.</div>
+    <div class="hint">Bảng tổng quan của Level Bank. Game chơi danh sách đã lưu khi mở với <code>?custom=1</code>.</div>
   </div>
 </div>
 
