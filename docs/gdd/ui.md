@@ -33,7 +33,7 @@ Sân chơi logic 450 × 800, từ trên xuống:
 | Khối lớn vỡ | 90 mảnh vỡ, rung mạnh hơn |
 | Máy bay bắn | máy bay giật xuống một chút, luồng phản lực dài ra |
 | Chạm màn hình | gợn sóng tròn 0.5 s |
-| Rung máy (`navigator.vibrate`) | cất cánh 12 ms · trúng 10 ms (khối lớn 8, vỡ 20) · thắng 20-50-30 · thua 40-60-40 · đếm ngược bế tắc 18 ms ở 3, 2, 1 s |
+| Rung máy (`navigator.vibrate`) | cất cánh 12 ms · trúng 10 ms (khối lớn 8, vỡ 20) · thắng 20-50-30 · thua 40-60-40 · đếm ngược bế tắc 18 ms ở 3, 2, 1 s · tắt khi chạy `?autoplay=1` |
 
 ## 5.4 Popup <Badge type="tip" text="Live" />
 
@@ -42,6 +42,7 @@ Sân chơi logic 450 × 800, từ trên xuống:
 | **PIXEL SQUADRON** | Mở game | Luật chơi tóm tắt, nút *BẮT ĐẦU* |
 | **HOÀN THÀNH!** | Thắng | Tên màn vừa phá, 10 chấm tiến độ, *MÀN TIẾP THEO ›* |
 | **BẾ TẮC!** | Thua | Mẹo chơi, *THỬ LẠI* |
+| **HẾT MÁY BAY!** | Thua vì cả ba khoang hết máy bay mà tranh còn khối (màn xếp tay thiếu đạn) | Gợi ý kiểm tra lại số đạn trong Level Editor, *THỬ LẠI* |
 | **TÍNH NĂNG MỚI** | Lần đầu vào màn có cơ chế mới (ẩn, nối đôi, khối lớn, trùm), mỗi cơ chế một lần mỗi phiên | 3 ô minh hoạ + giải thích, *ĐÃ HIỂU*. Game tạm dừng khi popup mở |
 | **CHỌN MÀN** | Nút ▦ | 10 nút (tên · số màu), màn hiện tại viền xanh. Game tạm dừng |
 | **TÙY BIẾN** | Nút 🎨 | 5 skin máy bay (Tiêm kích, Mũi nhọn, Tàng hình, Cánh đôi, Đĩa bay) và 5 loại đạn (Tia lửa, Laser, Cầu plasma, Tên lửa, Sao băng), có hình xem trước. Game tạm dừng |
