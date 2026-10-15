@@ -38,6 +38,22 @@ export interface Level {
     big?: BigSpec[];
     /** Key into FEATURES: popup shown the first time this mechanic appears. */
     feature?: string;
+    /**
+     * Hand-placed hangar queues (3 lists, head first). When set, planes are not generated: `hidden` and
+     * `connected` are ignored and each plane carries its own hidden/link flags. Ammo per colour should equal
+     * that colour's hits, otherwise the level cannot be finished.
+     */
+    queues?: ManualPlane[][];
+}
+
+export interface ManualPlane {
+    /** Colour letter. */
+    c: string;
+    /** Rounds. */
+    a: number;
+    hidden?: boolean;
+    /** Linked-pair id: the two planes with the same id take off together. */
+    link?: number;
 }
 
 export const F_HIDDEN: Feature = {

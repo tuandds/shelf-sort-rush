@@ -19,7 +19,9 @@ interface Rect { x: number; y: number; w: number; h: number }
 
 type Mode = 'menu' | 'play' | 'win' | 'lose';
 
-const vib = (ms: number | number[]) => { try { navigator.vibrate?.(ms); } catch { /* not supported */ } };
+/** Haptics; off during the editor's autoplay (nobody is holding the phone, and browsers block it without a tap). */
+const QUIET = new URLSearchParams(location.search).get('autoplay') === '1';
+const vib = (ms: number | number[]) => { if (QUIET) return; try { navigator.vibrate?.(ms); } catch { /* not supported */ } };
 
 export class Game extends Phaser.Scene {
     // layout
@@ -439,12 +441,14 @@ export class Game extends Phaser.Scene {
                 this.flying.every((p) => p.slot < 0 || p.ammo <= 0 || !this.findTarget(p.c));
             const waiting = !this.anyTarget(); // board empty while the next wave scrolls in: not a stall
             const active = this.activeCount();
-            if (!waiting && (active >= SLOTS || (noMove && active > 0))) {
+            // out of planes with blocks left (possible with hand-placed hangars whose ammo does not add up)
+            const outOfPlanes = active === 0 && this.queues.every((q) => !q.length) && this.bullets.length === 0;
+            if (!waiting && (active >= SLOTS || (noMove && active > 0) || outOfPlanes)) {
                 const before = Math.ceil(STALL_MAX - this.stall);
                 this.stall += dt;
                 const s = Math.max(0, Math.ceil(STALL_MAX - this.stall));
                 if (s !== before && s <= 3) vib(18);
-                if (this.stall >= STALL_MAX) this.gameOver();
+                if (this.stall >= STALL_MAX) this.gameOver(outOfPlanes);
             } else this.stall = 0;
         }
 
@@ -559,13 +563,14 @@ export class Game extends Phaser.Scene {
         });
     }
 
-    private gameOver() {
+    private gameOver(outOfPlanes = false) {
         if (this.mode !== 'play') return;
         this.mode = 'lose'; this.shake = 1; vib([40, 60, 40]);
         this.time.delayedCall(900, () => {
             this.popups.showOverlay({
-                icon: '🚧', title: 'BẾ TẮC!', levels: this.levels.length, lit: this.level - 1,
-                text: 'Vùng chiến đấu đã đầy 5 máy bay và suốt 5 giây không phá được khối nào.\n\n' +
+                icon: '🚧', title: outOfPlanes ? 'HẾT MÁY BAY!' : 'BẾ TẮC!', levels: this.levels.length, lit: this.level - 1,
+                text: outOfPlanes ? 'Cả ba khoang đã hết máy bay nhưng tranh vẫn còn khối.\n\nTổng số đạn của màn này chưa khớp với số khối (kiểm tra lại phần xếp tay trong Level Editor).' :
+                    'Vùng chiến đấu đã đầy 5 máy bay và suốt 5 giây không phá được khối nào.\n\n' +
                     'Mẹo: chỉ cho bay lên khi khối cùng màu đang lộ ra ở đáy (khối có viền sáng nhấp nháy).',
                 button: 'THỬ LẠI',
                 onButton: () => { this.loadLevel(this.level); this.mode = 'play'; vib(15); }

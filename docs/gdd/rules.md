@@ -16,7 +16,7 @@ Mọi hằng số nằm ở `src/game/data.ts`, logic ở `src/scenes/Game.ts`.
 
 Mỗi khối bị phá (hoặc trừ độ bền) đặt đồng hồ về 0. Khi board trống tạm thời vì mảng sau đang trôi vào, đồng hồ không chạy. Lúc còn 3, 2, 1 giây máy rung nhẹ.
 
-Khi chưa có máy bay nào trên trời thì không bao giờ thua: người chơi luôn có thể cho bay một chiếc lên (nó sẽ đứng chờ).
+Khi chưa có máy bay nào trên trời thì không bao giờ thua: người chơi luôn có thể cho bay một chiếc lên (nó sẽ đứng chờ). Ngoại lệ: cả ba khoang đã hết máy bay mà tranh vẫn còn khối (chỉ xảy ra khi khoang xếp tay thiếu đạn) — đồng hồ bế tắc cũng chạy và popup là **HẾT MÁY BAY!**
 
 ## 3.2 Board và đội hình <Badge type="tip" text="Live" />
 
@@ -72,6 +72,8 @@ Khi cả ba khoang chứa đều trống, mọi máy bay còn lại di chuyển,
 4. **Chia vào 3 khoang** lần lượt (chiếc thứ j vào khoang `j mod 3`).
 
 Khi một màu đã sạch khỏi tranh, mọi máy bay màu đó còn trong khoang bị bỏ đi.
+
+**Khoang xếp tay.** Màn có trường `queues` (tạo bằng Plane Editor của [Level Editor](/guide/level-editor)) bỏ qua cả 4 bước trên: 3 khoang được dùng nguyên thứ tự đã xếp, mỗi máy bay mang sẵn màu, số đạn, cờ ẩn và số cặp nối đôi. Chiếc đứng đầu khoang lúc bắt đầu không bao giờ ẩn.
 
 ## 3.5 Máy bay ẩn <Badge type="tip" text="Live" />
 

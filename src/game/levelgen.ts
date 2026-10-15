@@ -134,6 +134,13 @@ export function generateLevel(L: Level, rnd: () => number = Math.random): Genera
     }
 
     // ---- planes ----
+    // Hand-placed queues: use them as they are (the head of a hangar is never hidden at the start).
+    if (L.queues) {
+        const queues: QPlane[][] = [0, 1, 2].map((h) => (L.queues![h] || []).map((p, k) => ({
+            c: p.c, a: Math.max(1, p.a | 0), key: 0, hidden: !!p.hidden && k > 0, link: p.link || undefined
+        })));
+        return { forms, remaining, count, queues };
+    }
     // 1) simulate the order blocks will be destroyed (lowest first, left to right, across all forms)
     const order: string[] = [];
     {
