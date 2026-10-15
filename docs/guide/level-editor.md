@@ -32,23 +32,22 @@ Editor dùng **đúng định dạng màn và đúng bộ sinh màn của game**
 - **Mảng hình (wave)**: mỗi màn là nhiều mảng. Mỗi mảng có kích thước, **cột bắt đầu `ox`** và **độ lệch dọc `dy`** (âm = nằm phía trên board, trôi vào sau).
 - **Toàn đội hình trên board**: cả đội hình trên 21 cột, căn giữa như trong game. Khung xanh = 10 hàng người chơi thấy đầu tiên; ✕ đỏ = ô bị hai mảng chồng nhau; bấm vào một mảng để chọn.
 - **Cài đặt màn**: tên màn, popup *tính năng mới*.
-- **Level Mechanics Bank**: ❓ máy bay ẩn, 🔗 cặp nối đôi (hai cơ chế này chỉ dùng ở chế độ Ngẫu nhiên), 🧱 khối lớn, 👑 lõi trùm. Bấm lại để tắt.
+- **Level Mechanics Bank**: ❓ máy bay ẩn và 🔗 cặp nối đôi (thông số cho 🎲 Random và cho màn chưa xếp máy bay), 🧱 khối lớn, 👑 lõi trùm. Bấm lại để tắt.
 
 ## 3. Plane Editor
 
-Chọn cách tạo máy bay trong 3 khoang chứa:
+Xếp máy bay cho 3 khoang chứa bằng tay. Game dùng đúng thứ tự đã xếp, không xáo.
 
-| Chế độ | Cách hoạt động |
-|---|---|
-| **🎲 Ngẫu nhiên** | Như game gốc: chia đạn 10–20 viên mỗi chiếc theo thứ tự khối sẽ bị phá, chia lần lượt vào 3 khoang, xáo nhẹ mỗi lần chơi; máy bay ẩn và cặp nối đôi lấy theo cài đặt ❓/🔗. Danh sách hiện ra là một bản sinh thử (🎲 *Sinh lại* để xem bản khác). |
-| **✋ Xếp tay** | Bạn quyết định từng máy bay; game dùng đúng thứ tự này, không xáo. *✋ Sửa bản này* chuyển một bản sinh ngẫu nhiên sang để chỉnh tiếp. |
+- **🎲 Random**: sinh lại cả 3 khoang theo thuật toán của game (chia đạn 10–20 viên mỗi chiếc theo thứ tự khối sẽ bị phá; tỉ lệ ẩn ❓ và số cặp 🔗 lấy từ Wave Editor), rồi chỉnh tiếp. `Ctrl+Z` để quay lại bản trước.
+- **🧹 Xoá hết**: làm trống cả 3 khoang.
+- Màn **chưa xếp máy bay** (ví dụ 10 màn gốc) thì game tự sinh mỗi lần chơi; Plane Editor hiện một bản sinh thử kèm dòng cảnh báo vàng. Sửa bất kỳ máy bay nào hoặc bấm 🎲 Random là màn chuyển sang xếp tay.
 
-Ở chế độ xếp tay, mỗi máy bay có: **màu** (bấm ô màu), **số đạn**, **?** (ẩn màu và số đạn tới khi lên đầu hàng; chiếc đầu hàng lúc bắt đầu luôn hiện), **🔗 số cặp** (hai máy bay cùng số là một cặp nối đôi: phải đứng đầu hai khoang, hoặc liền nhau trong một khoang). **Kéo thả** để đổi thứ tự hoặc chuyển khoang; hàng trên cùng (vạch xanh) cất cánh trước. *＋* thêm một máy bay màu đang chọn, số đạn tự điền bằng phần còn thiếu của màu đó.
+Mỗi máy bay có: **màu** (bấm ô màu), **số đạn**, **?** (ẩn màu và số đạn tới khi lên đầu hàng; chiếc đầu hàng lúc bắt đầu luôn hiện), **🔗 số cặp** (hai máy bay cùng số là một cặp nối đôi: phải đứng đầu hai khoang, hoặc liền nhau trong một khoang). **Kéo thả** để đổi thứ tự hoặc chuyển khoang; hàng trên cùng (vạch xanh) cất cánh trước. *＋* thêm một máy bay màu đang chọn, số đạn tự điền bằng phần còn thiếu của màu đó.
 
 **Đạn theo màu (có / cần)**: xanh = khớp, đỏ = thiếu (màn không thể thắng — game sẽ báo *HẾT MÁY BAY!*), vàng = thừa. Nếu khối lớn có độ bền ngẫu nhiên, số cần có dấu `~`; đặt độ bền min = max để khớp chính xác.
 
 ## 4. Level Bank
-Danh sách màn với ảnh thu nhỏ, số màu, số khối, kiểu khoang (🎲/✋) và chấm trạng thái (xanh/vàng/đỏ theo kiểm tra; chấm vàng cạnh tên = chưa lưu). Bấm để mở, ↑↓ để sắp xếp, ＋ màn mới, ⧉ nhân bản, 🗑 xoá.
+Danh sách màn với ảnh thu nhỏ, số màu, số khối, khoang (✋ đã xếp / 🎲 game tự sinh) và chấm trạng thái (xanh/vàng/đỏ theo kiểm tra; chấm vàng cạnh tên = chưa lưu). Bấm để mở, ↑↓ để sắp xếp, ＋ màn mới, ⧉ nhân bản, 🗑 xoá.
 
 **Lưu trữ:**
 
@@ -84,4 +83,4 @@ Danh sách màn với ảnh thu nhỏ, số màu, số khối, kiểu khoang (�
 }
 ```
 
-Mỗi ký tự trong `art` là một màu (`r p y k w g c o b v l u n m d s`, xem [bảng màu](/gdd/levels)), `.` là ô trống. `feature` là một trong `hidden`, `linked`, `big`, `boss`. Các trường cơ chế bỏ trống thì cơ chế đó tắt. Có `queues` (3 danh sách, đầu hàng trước) là chế độ xếp tay: game bỏ qua `hidden` / `connected` và dùng cờ trên từng máy bay; không có `queues` là chế độ ngẫu nhiên.
+Mỗi ký tự trong `art` là một màu (`r p y k w g c o b v l u n m d s`, xem [bảng màu](/gdd/levels)), `.` là ô trống. `feature` là một trong `hidden`, `linked`, `big`, `boss`. Các trường cơ chế bỏ trống thì cơ chế đó tắt. Có `queues` (3 danh sách, đầu hàng trước) là màn đã xếp máy bay: game dùng nguyên thứ tự đó và cờ trên từng máy bay (`hidden` / `connected` của màn chỉ còn là thông số cho 🎲 Random); không có `queues` thì game tự sinh mỗi lần chơi.

@@ -396,22 +396,20 @@ const BOSS_CORE: BigSpec = { n: 1, hp: [20, 20], size: 5 };
 const isBoss = (b: BigSpec) => b.size === 5;
 
 function renderMech() {
-    const lv = L(), manual = !!lv.queues;
+    const lv = L();
     const big = lv.big || [];
     const on = { hidden: !!lv.hidden, linked: !!lv.connected, big: big.some((b) => !isBoss(b)), boss: big.some(isBoss) };
     const btns: [keyof typeof on, string, string, string][] = [
-        ['hidden', '❓', 'ẨN', 'Máy bay ẩn: chiếc dưới đầu hàng giấu màu và số đạn (chế độ Ngẫu nhiên)'],
-        ['linked', '🔗', 'NỐI ĐÔI', 'Cặp máy bay ở hai khoang, chỉ cất cánh cùng nhau (chế độ Ngẫu nhiên)'],
+        ['hidden', '❓', 'ẨN', 'Máy bay ẩn: tỉ lệ dùng khi 🎲 Random / khi game tự sinh'],
+        ['linked', '🔗', 'NỐI ĐÔI', 'Cặp nối đôi: số cặp dùng khi 🎲 Random / khi game tự sinh'],
         ['big', '🧱', 'KHỐI LỚN', 'Khối lớn 2×2…4×4 với độ bền 5–10'],
         ['boss', '👑', 'LÕI TRÙM', 'Một khối 5×5 độ bền 20 trên mỗi mảng đủ lớn']
     ];
     $('mech').innerHTML = btns.map(([k, icon, label, tip]) => {
-        const off = manual && (k === 'hidden' || k === 'linked');
-        return `<button class="mech-btn${on[k] ? ' on' : ''}" data-k="${k}" title="${tip}"${off ? ' style="opacity:.35"' : ''}>${icon}<small>${label}</small></button>`;
+        return `<button class="mech-btn${on[k] ? ' on' : ''}" data-k="${k}" title="${tip}">${icon}<small>${label}</small></button>`;
     }).join('');
     $('mech').querySelectorAll<HTMLButtonElement>('.mech-btn').forEach((b) => b.onclick = () => {
         const k = b.dataset.k as keyof typeof on;
-        if (manual && (k === 'hidden' || k === 'linked')) { toast('Đang xếp tay: đặt ẩn / nối đôi trên từng máy bay ở Plane Editor'); return; }
         snapshot();
         if (k === 'hidden') lv.hidden = on.hidden ? undefined : 0.4;
         if (k === 'linked') lv.connected = on.linked ? undefined : 3;
@@ -424,9 +422,9 @@ function renderMech() {
     });
 
     const parts: string[] = [];
-    if (lv.hidden && !manual) parts.push(`<div class="setting-row"><label>Tỉ lệ máy bay ẩn</label>
+    if (lv.hidden) parts.push(`<div class="setting-row"><label>Tỉ lệ máy bay ẩn</label>
         <input type="range" id="m-hidden" min="5" max="80" step="5" value="${Math.round(lv.hidden * 100)}"><span class="setting-val">${Math.round(lv.hidden * 100)}%</span></div>`);
-    if (lv.connected && !manual) parts.push(`<div class="setting-row"><label>Số cặp nối đôi</label>
+    if (lv.connected) parts.push(`<div class="setting-row"><label>Số cặp nối đôi</label>
         <input type="range" id="m-linked" min="1" max="6" step="1" value="${lv.connected}"><span class="setting-val">${lv.connected}</span></div>`);
     if (lv.big?.length) {
         parts.push('<div class="setting-row" style="margin-top:10px;"><label>Khối lớn (mỗi mảng)</label><span class="hint" style="margin:0">số lượng · độ bền min–max · kích thước</span></div>');
@@ -556,20 +554,29 @@ function toManual(gen: Generated | null): ManualPlane[][] {
     }));
 }
 
+/** A fresh generated arrangement for the current level (uses the ❓/🔗 settings as its parameters). */
+function randomQueues(lv: Level) {
+    seed++;
+    return toManual(generateLevel({ ...lv, queues: undefined }, seeded(seed)));
+}
+
 function renderPlanes(gen: Generated | null) {
-    const lv = L(), manual = !!lv.queues;
-    $('plane-mode').querySelectorAll<HTMLButtonElement>('button').forEach((b) => b.classList.toggle('on', (b.dataset.m === 'manual') === manual));
-    $('plane-mode-hint').textContent = manual
-        ? 'Bạn tự quyết định từng máy bay: màu, số đạn, ẩn, nối đôi và thứ tự cất cánh. Kéo thả để đổi chỗ, kể cả sang khoang khác.'
-        : 'Game tự chia đạn 10–20 viên mỗi máy bay theo thứ tự khối sẽ bị phá, rồi chia lần lượt vào 3 khoang. Mỗi lần chơi có xáo trộn nhẹ.';
-    const qs = manual ? lv.queues! : gen?.queues ?? [[], [], []];
+    const lv = L();
+    // Levels without hand-placed hangars (e.g. the original 10) show a generated arrangement; the first edit
+    // or 🎲 Random turns it into the level's own hangars.
+    const placed = !!lv.queues;
+    const qs: ManualPlane[][] = lv.queues ?? toManual(gen);
+    $('plane-mode-hint').innerHTML = placed
+        ? 'Game dùng đúng thứ tự máy bay bên dưới. Kéo thả để đổi chỗ, kể cả sang khoang khác.'
+        : '<b style="color:var(--amber)">Màn này chưa xếp máy bay:</b> game đang tự sinh mỗi lần chơi. Bên dưới là một bản sinh thử — sửa bất kỳ máy bay nào (hoặc bấm 🎲 Random) để xếp tay.';
     const planes = qs.reduce((a, q) => a + q.length, 0);
     const { counts } = rawCounts(lv);
     $('stats').innerHTML = [[gen?.remaining ?? 0, 'Lượt bắn'], [Object.keys(counts).length, 'Màu'], [planes, 'Máy bay'], [lv.waves.length, 'Mảng']]
         .map(([v, l]) => `<div class="stat"><b>${v}</b><span>${l}</span></div>`).join('');
 
     // ammo balance per colour
-    const need = gen?.count ?? counts, have = ammoOf(lv, gen);
+    const need = gen?.count ?? counts, have: Record<string, number> = {};
+    qs.forEach((q) => q.forEach((p) => { have[p.c] = (have[p.c] || 0) + p.a; }));
     const approx = randomHits(lv) ? '~' : '';
     $('balance').innerHTML = KEYS.filter((k) => need[k] || have[k]).map((k) => {
         const n = need[k] || 0, h = have[k] || 0;
@@ -577,49 +584,41 @@ function renderPlanes(gen: Generated | null) {
         return `<span class="bal${cls}" title="${COLOR_NAMES[k]}: máy bay mang ${h} đạn, cần ${approx}${n}"><i style="background:${PAL[k]}"></i>${h}/${approx}${n}</span>`;
     }).join('') || '<span class="hint">Chưa có khối nào</span>';
 
-    // actions
-    $('plane-actions').innerHTML = manual
-        ? '<button class="btn" id="pa-regen" title="Thay bằng một bản sinh ngẫu nhiên">↺ Lấy từ bản sinh</button><button class="btn danger" id="pa-clear">🧹 Xoá hết</button>'
-        : '<button class="btn" id="pa-reroll">🎲 Sinh lại</button><button class="btn" id="pa-take" title="Chuyển sang xếp tay, bắt đầu từ bản sinh này">✋ Sửa bản này</button>';
-    if (manual) {
-        $('pa-regen').onclick = () => { if (!confirm('Thay toàn bộ máy bay đang xếp bằng một bản sinh ngẫu nhiên?')) return; snapshot(); seed++; lv.queues = toManual(generateLevel({ ...lv, queues: undefined }, seeded(seed))); renderAll(false); };
-        $('pa-clear').onclick = () => { if (!confirm('Xoá hết máy bay trong cả 3 khoang?')) return; snapshot(); lv.queues = [[], [], []]; renderAll(false); };
-    } else {
-        $('pa-reroll').onclick = () => { seed++; refreshDerived(); };
-        $('pa-take').onclick = () => setPlaneMode('manual');
-    }
+    /** Run an edit on the hangars, turning a generated preview into the level's own hangars first. */
+    const edit = (fn: () => void) => {
+        snapshot();
+        if (!lv.queues) lv.queues = qs;
+        fn();
+        renderAll(false);
+    };
 
-    // hangars
+    $('plane-actions').innerHTML = '<button class="btn primary" id="pa-random" title="Sinh ngẫu nhiên lại cả 3 khoang (dùng tỉ lệ ẩn ❓ và số cặp 🔗 ở Wave Editor)">🎲 Random</button>'
+        + '<button class="btn danger" id="pa-clear">🧹 Xoá hết</button>';
+    $('pa-random').onclick = () => { snapshot(); lv.queues = randomQueues(lv); renderAll(false); toast('Đã sinh ngẫu nhiên, Ctrl+Z để quay lại'); };
+    $('pa-clear').onclick = () => { if (!confirm('Xoá hết máy bay trong cả 3 khoang?')) return; edit(() => { lv.queues = [[], [], []]; }); };
+
     const host = $('hangars');
-    if (!manual) {
-        host.innerHTML = qs.map((q, i) => `<div class="hangar"><h4>KHOANG ${i + 1} · ${q.length}</h4>${q.map((p) =>
-            `<div class="plane${p.hidden ? ' hidden' : ''}${p.link ? ' link' : ''}"><i style="background:${PAL[p.c]}"></i>${p.hidden ? '?' : p.a}${p.link ? `<u>🔗${p.link}</u>` : ''}</div>`).join('')}</div>`).join('');
-        $('plane-hint').textContent = 'Bản sinh thử bằng chính bộ sinh của game. Khi chơi thật, máy bay ẩn và cặp nối đôi có thể khác bản này.';
-        return;
-    }
     host.innerHTML = '';
-    lv.queues!.forEach((q, h) => {
+    qs.forEach((q, h) => {
         const box = document.createElement('div');
         box.className = 'hangar';
-        box.dataset.h = String(h);
         box.innerHTML = `<h4>KHOANG ${h + 1} · ${q.length}</h4>`;
         q.forEach((p, k) => {
             const row = document.createElement('div');
             row.className = 'mplane' + (p.link ? ' link' : '') + (k === 0 ? ' head' : '');
             row.draggable = true;
-            row.dataset.h = String(h); row.dataset.k = String(k);
             row.title = k === 0 ? 'Đầu hàng: cất cánh trước' : `Thứ ${k + 1} trong khoang`;
-            row.innerHTML = `<button class="sw" style="background:${PAL[p.c] || '#333'}" title="Đổi màu"></button>
+            row.innerHTML = `<button class="sw" style="background:${PAL[p.c] || '#333'}" title="Đổi màu (${COLOR_NAMES[p.c] ?? p.c})"></button>
                 <input type="number" min="1" max="99" value="${p.a}" title="Số đạn">
                 <button class="ic${p.hidden ? ' on' : ''}" title="Ẩn màu và số đạn cho tới khi lên đầu hàng">?</button>
                 <input class="lk" type="number" min="0" max="99" value="${p.link || ''}" placeholder="🔗" title="Số cặp nối đôi: hai máy bay cùng số cất cánh cùng nhau">
                 <button class="x" title="Xoá">✕</button>`;
             const [sw, ammo, hidBtn, link, del] = [...row.children] as HTMLElement[];
-            sw.onclick = (e) => { e.stopPropagation(); colourPopover(sw, (c) => { snapshot(); p.c = c; renderAll(false); }); };
-            (ammo as HTMLInputElement).onchange = () => { snapshot(); p.a = Math.max(1, Math.min(99, +(ammo as HTMLInputElement).value || 1)); renderAll(false); };
-            hidBtn.onclick = () => { snapshot(); if (p.hidden) delete p.hidden; else p.hidden = true; renderAll(false); };
-            (link as HTMLInputElement).onchange = () => { snapshot(); const v = +(link as HTMLInputElement).value || 0; if (v) p.link = v; else delete p.link; renderAll(false); };
-            del.onclick = () => { snapshot(); q.splice(k, 1); renderAll(false); };
+            sw.onclick = (e) => { e.stopPropagation(); colourPopover(sw, (c) => edit(() => { p.c = c; })); };
+            (ammo as HTMLInputElement).onchange = () => edit(() => { p.a = Math.max(1, Math.min(99, +(ammo as HTMLInputElement).value || 1)); });
+            hidBtn.onclick = () => edit(() => { if (p.hidden) delete p.hidden; else p.hidden = true; });
+            (link as HTMLInputElement).onchange = () => edit(() => { const v = +(link as HTMLInputElement).value || 0; if (v) p.link = v; else delete p.link; });
+            del.onclick = () => edit(() => { q.splice(k, 1); });
             row.addEventListener('dragstart', (e) => { e.dataTransfer!.setData('text/plain', `${h}:${k}`); row.classList.add('dragging'); });
             row.addEventListener('dragend', () => row.classList.remove('dragging'));
             box.appendChild(row);
@@ -627,13 +626,11 @@ function renderPlanes(gen: Generated | null) {
         const add = document.createElement('button');
         add.className = 'add-plane';
         add.innerHTML = `＋ <span style="display:inline-block;width:10px;height:10px;border-radius:3px;background:${PAL[colour]}"></span> ${COLOR_NAMES[colour]}`;
-        add.title = 'Thêm máy bay màu đang chọn ở Colour Bank';
-        add.onclick = () => {
-            snapshot();
-            const need2 = (gen?.count[colour] || 0) - (ammoOf(lv, gen)[colour] || 0);
-            q.push({ c: colour, a: Math.max(1, Math.min(20, need2 > 0 ? need2 : 10)) });
-            renderAll(false);
-        };
+        add.title = 'Thêm máy bay màu đang chọn ở Colour Bank (số đạn = phần còn thiếu của màu đó, tối đa 20)';
+        add.onclick = () => edit(() => {
+            const missing = (need[colour] || 0) - (have[colour] || 0);
+            q.push({ c: colour, a: Math.max(1, Math.min(20, missing > 0 ? missing : 10)) });
+        });
         box.appendChild(add);
         // drop: insert before the row under the cursor, or at the end
         box.addEventListener('dragover', (e) => { e.preventDefault(); box.classList.add('drop'); });
@@ -641,32 +638,19 @@ function renderPlanes(gen: Generated | null) {
         box.addEventListener('drop', (e) => {
             e.preventDefault(); box.classList.remove('drop');
             const [fh, fk] = (e.dataTransfer!.getData('text/plain') || '').split(':').map(Number);
-            if (!Number.isFinite(fh) || !lv.queues![fh]?.[fk]) return;
+            if (!Number.isFinite(fh) || !qs[fh]?.[fk]) return;
             const rows = [...box.querySelectorAll<HTMLElement>('.mplane')];
             let at = rows.findIndex((r) => e.clientY < r.getBoundingClientRect().top + r.offsetHeight / 2);
             if (at < 0) at = rows.length;
-            snapshot();
-            const [p] = lv.queues![fh].splice(fk, 1);
-            if (fh === h && fk < at) at--;
-            lv.queues![h].splice(at, 0, p);
-            renderAll(false);
+            edit(() => {
+                const [p] = qs[fh].splice(fk, 1);
+                if (fh === h && fk < at) at--;
+                qs[h].splice(at, 0, p);
+            });
         });
         host.appendChild(box);
     });
-    $('plane-hint').innerHTML = 'Hàng trên cùng là chiếc cất cánh đầu tiên (vạch xanh). <b>?</b> = máy bay ẩn (chiếc đầu hàng lúc bắt đầu luôn hiện). Hai máy bay cùng số 🔗 là một cặp nối đôi: phải đứng đầu hai khoang, hoặc liền nhau trong một khoang.';
-}
-
-function setPlaneMode(m: 'random' | 'manual') {
-    const lv = L();
-    if (m === 'manual' && !lv.queues) {
-        snapshot();
-        lv.queues = toManual(sample({ ...lv, queues: undefined }));
-    } else if (m === 'random' && lv.queues) {
-        if (!confirm('Bỏ thứ tự xếp tay và để game tự sinh máy bay?')) return;
-        snapshot();
-        delete lv.queues;
-    }
-    renderAll(false);
+    $('plane-hint').innerHTML = 'Hàng trên cùng (vạch xanh) cất cánh trước. <b>?</b> = máy bay ẩn (chiếc đầu hàng lúc bắt đầu luôn hiện). Hai máy bay cùng số 🔗 là một cặp nối đôi: phải đứng đầu hai khoang, hoặc liền nhau trong một khoang. 🎲 Random dùng tỉ lệ ẩn ❓ và số cặp 🔗 ở Wave Editor.';
 }
 
 let popover: HTMLElement | null = null;
@@ -686,9 +670,6 @@ function colourPopover(anchor: HTMLElement, pick: (c: string) => void) {
 }
 document.addEventListener('click', (e) => { if (popover && !popover.contains(e.target as Node)) { popover.remove(); popover = null; } });
 
-function wirePlanes() {
-    $('plane-mode').querySelectorAll<HTMLButtonElement>('button').forEach((b) => b.onclick = () => setPlaneMode(b.dataset.m as 'random' | 'manual'));
-}
 
 // ---------- 4. level bank ----------
 function thumb(lv: Level, s: number, maxH: number) {
@@ -814,7 +795,7 @@ function renderOrganizer() {
             ...(lv.big || []).map((b) => (b.size === 5 ? '👑 lõi' : `🧱 ${b.n}× ${b.hp[0]}–${b.hp[1]}`))].filter(Boolean);
         tr.innerHTML = `<td><b>${i + 1}</b></td><td class="th"></td><td><b>${escapeHtml(lv.name)}</b>${lv.feature ? `<div class="hint" style="margin:0">popup: ${lv.feature}</div>` : ''}</td>
             <td>${Object.keys(rep.counts).length}</td><td>${rep.blocks}${lv.big ? '+' : ''}</td><td>${lv.queues ? '' : '~'}${planes}</td><td>${lv.waves.length}</td>
-            <td>${mech.map((m) => `<span class="tag">${m}</span>`).join('') || '—'}</td><td>${lv.queues ? '✋ xếp tay' : '🎲 ngẫu nhiên'}</td>
+            <td>${mech.map((m) => `<span class="tag">${m}</span>`).join('') || '—'}</td><td>${lv.queues ? '✋ đã xếp' : '🎲 game tự sinh'}</td>
             <td>${rep.errors.length ? `<span style="color:var(--red)">⛔ ${rep.errors.length}</span>` : rep.warns.length ? `<span style="color:var(--amber)">⚠️ ${rep.warns.length}</span>` : '<span style="color:var(--green)">✅</span>'}</td>
             <td><div class="row" style="flex-wrap:nowrap">
               <button class="btn" data-a="edit" title="Sửa">✎</button><button class="btn" data-a="play" title="Chơi thử">▶</button>
@@ -995,7 +976,6 @@ wireHeader();
 wireGrid();
 wireWaveControls();
 wireBoard();
-wirePlanes();
 wireBank();
 wireKeys();
 wireResizers();
