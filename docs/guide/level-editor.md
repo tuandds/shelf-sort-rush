@@ -23,7 +23,9 @@ Editor dùng **đúng định dạng màn và đúng bộ sinh màn của game**
 | ⬇ | Tải JSON của màn đang sửa |
 
 ## 1. Colour Bank
-10 màu của game, kèm số khối mỗi màu trong màn. Phím `1`–`0` chọn màu. Công cụ: ✏️ vẽ (`B`), 🧽 tẩy (`E`), 🪣 đổ màu (`G`), 💧 hút màu (`I`). Chuột phải trên lưới là tẩy. `Ctrl+Z` hoàn tác. Màu đang chọn cũng là màu của máy bay thêm mới ở Plane Editor.
+- **Active Palette**: các màu màn đang dùng (kèm số khối) và màu đang chọn. Phím `1`–`0` chọn màu theo thứ tự trong Active Palette.
+- **Bank**: toàn bộ 26 màu, chia hai nhóm: **Pixel Squadron** (10 màu gốc, chữ thường) và **Marble Drop** (16 màu lấy từ editor Marble Drop, chữ in hoa — xem [bảng màu](/gdd/levels)). Bấm một màu để vẽ bằng màu đó; ô có viền nét đứt là màu đang có trong màn.
+- Công cụ: ✏️ vẽ (`B`), 🧽 tẩy (`E`), 🪣 đổ màu (`G`), 💧 hút màu (`I`). Chuột phải trên lưới là tẩy. `Ctrl+Z` hoàn tác. Màu đang chọn cũng là màu của máy bay thêm mới ở Plane Editor.
 
 ## 2. Wave Editor
 - **Kiểm tra** (khung trên cùng): ⛔ lỗi chặn chơi thử; ⚠️ cảnh báo; ℹ️ gợi ý.
@@ -82,4 +84,4 @@ Danh sách màn với ảnh thu nhỏ, số màu, số khối, kiểu khoang (�
 }
 ```
 
-Mỗi ký tự trong `art` là một màu (`r p y k w g c o b v`, xem [bảng màu](/gdd/levels)), `.` là ô trống. `feature` là một trong `hidden`, `linked`, `big`, `boss`. Các trường cơ chế bỏ trống thì cơ chế đó tắt. Có `queues` (3 danh sách, đầu hàng trước) là chế độ xếp tay: game bỏ qua `hidden` / `connected` và dùng cờ trên từng máy bay; không có `queues` là chế độ ngẫu nhiên.
+Mỗi ký tự trong `art` là một màu (`r p y k w g c o b v` và 16 màu Marble Drop `Y P R L B U X E N C D G S Q O W`, xem [bảng màu](/gdd/levels)), `.` là ô trống. `feature` là một trong `hidden`, `linked`, `big`, `boss`. Các trường cơ chế bỏ trống thì cơ chế đó tắt. Có `queues` (3 danh sách, đầu hàng trước) là chế độ xếp tay: game bỏ qua `hidden` / `connected` và dùng cờ trên từng máy bay; không có `queues` là chế độ ngẫu nhiên.

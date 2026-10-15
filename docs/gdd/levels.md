@@ -14,6 +14,21 @@ Dữ liệu màn ở `LEVELS` trong `src/game/data.ts`. Mỗi màn là danh sác
 
 `c` và `b` được tách hẳn (xanh ngọc và xanh dương đậm) vì trước đây hai màu này rất dễ nhầm. `k` được làm sáng để không chìm vào nền tối.
 
+**Bảng màu Marble Drop** (chữ in hoa, thêm cho Level Editor; 10 màn gốc không dùng):
+
+| Ký tự | Màu | | Ký tự | Màu |
+|---|---|---|---|---|
+| `Y` | <span style="color:#fcfc10">■</span> `#fcfc10` yellow | | `N` | <span style="color:#c25e47">■</span> `#c25e47` brown |
+| `P` | <span style="color:#fccefd">■</span> `#fccefd` pink | | `C` | <span style="color:#bd194a">■</span> `#bd194a` crimson |
+| `R` | <span style="color:#f2447b">■</span> `#f2447b` red | | `D` | <span style="color:#27993c">■</span> `#27993c` darkgreen |
+| `L` | <span style="color:#b7fd33">■</span> `#b7fd33` lime | | `G` | <span style="color:#44f245">■</span> `#44f245` green |
+| `B` | <span style="color:#3657f9">■</span> `#3657f9` darkBlue | | `S` | <span style="color:#75fefd">■</span> `#75fefd` lightblue |
+| `U` | <span style="color:#aa44f6">■</span> `#aa44f6` purple | | `Q` | <span style="color:#db7afa">■</span> `#db7afa` lightpurple |
+| `X` | <span style="color:#5d5765">■</span> `#5d5765` black | | `O` | <span style="color:#f5ae0b">■</span> `#f5ae0b` orange |
+| `E` | <span style="color:#29c3fc">■</span> `#29c3fc` blue2 | | `W` | <span style="color:#ffffff">■</span> `#ffffff` white |
+
+Một số màu Marble Drop khá gần màu gốc (ví dụ `R` red và `r` đỏ, `W` white và `w` trắng). Tránh dùng hai màu gần nhau trong cùng một màn, người chơi sẽ khó phân biệt.
+
 ## 4.2 Danh sách màn <Badge type="tip" text="Live" />
 
 Số khối tính cả độ bền khối lớn. Ở màn có khối lớn, số khối và số máy bay thay đổi mỗi lần chơi (đo qua 20 lần sinh màn).

@@ -3,7 +3,23 @@
 /** Palette: one letter per block colour. c (cyan) and b (deep blue) are kept far apart so they never get confused. */
 export const PAL: Record<string, string> = {
     r: '#ff4d5e', p: '#ff9bb3', y: '#ffd23f', k: '#5b6493', w: '#f4f6fb',
-    g: '#4ade80', c: '#22d3ee', o: '#fb923c', b: '#2f6bf0', v: '#cf6bff'
+    g: '#4ade80', c: '#22d3ee', o: '#fb923c', b: '#2f6bf0', v: '#cf6bff',
+    // Marble Drop palette (upper-case letters, so the 10 original colours and every existing level are unchanged)
+    Y: '#fcfc10', P: '#fccefd', R: '#f2447b', L: '#b7fd33', B: '#3657f9', U: '#aa44f6', X: '#5d5765', E: '#29c3fc',
+    N: '#c25e47', C: '#bd194a', D: '#27993c', G: '#44f245', S: '#75fefd', Q: '#db7afa', O: '#f5ae0b', W: '#ffffff'
+};
+
+/** The original Pixel Squadron colours and the colours added from the Marble Drop editor. */
+export const PAL_GROUPS: { name: string; keys: string[] }[] = [
+    { name: 'Pixel Squadron', keys: ['r', 'p', 'y', 'k', 'w', 'g', 'c', 'o', 'b', 'v'] },
+    { name: 'Marble Drop', keys: ['Y', 'P', 'R', 'L', 'B', 'U', 'X', 'E', 'N', 'C', 'D', 'G', 'S', 'Q', 'O', 'W'] }
+];
+
+/** Display names (Vietnamese for the originals, Marble Drop's own names for the added ones). */
+export const COLOR_NAMES: Record<string, string> = {
+    r: 'Đỏ', p: 'Hồng', y: 'Vàng', k: 'Xám xanh', w: 'Trắng', g: 'Xanh lá', c: 'Xanh ngọc', o: 'Cam', b: 'Xanh dương', v: 'Tím',
+    Y: 'yellow', P: 'pink', R: 'red', L: 'lime', B: 'darkBlue', U: 'purple', X: 'black', E: 'blue2',
+    N: 'brown', C: 'crimson', D: 'darkgreen', G: 'green', S: 'lightblue', Q: 'lightpurple', O: 'orange', W: 'white'
 };
 
 export interface Feature {
