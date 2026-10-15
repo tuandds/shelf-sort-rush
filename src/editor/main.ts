@@ -747,7 +747,7 @@ function renderBank() {
         card.className = 'lvcard' + (i === cur ? ' on' : '');
         card.innerHTML = `<span class="num">${i + 1}</span><span class="th"></span>
             <div class="meta"><b>${unsaved(i) ? '<span class="dot" style="background:#fbbf24" title="Chưa lưu"></span>' : ''}${escapeHtml(lv.name)}</b>
-            <span><span class="dot" style="background:${dot}"></span>${Object.keys(rep.counts).length} màu · ${rep.blocks} khối · ${lv.queues ? '✋' : '🎲'}${lv.hidden ? ' ❓' : ''}${lv.connected ? ' 🔗' : ''}${lv.big?.length ? ' 🧱' : ''}</span></div>
+            <span><span class="dot" style="background:${dot}"></span>${Object.keys(rep.counts).length} màu · ${rep.blocks} khối${lv.hidden ? ' ❓' : ''}${lv.connected ? ' 🔗' : ''}${lv.big?.length ? ' 🧱' : ''}</span></div>
             <div class="acts"><button data-a="up" title="Lên">↑</button><button data-a="down" title="Xuống">↓</button></div>`;
         card.querySelector('.th')!.appendChild(thumb(lv, 2, 44));
         card.onclick = (e) => {

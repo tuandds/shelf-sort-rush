@@ -49,7 +49,7 @@ Mỗi máy bay có: **màu** (bấm ô màu), **số đạn**, **?** (ẩn màu 
 **Đạn theo màu (có / cần)**: xanh = khớp, đỏ = thiếu (màn không thể thắng — game sẽ báo *HẾT MÁY BAY!*), vàng = thừa. Nếu khối lớn có độ bền ngẫu nhiên, số cần có dấu `~`; đặt độ bền min = max để khớp chính xác.
 
 ## 4. Level Bank
-Danh sách màn với ảnh thu nhỏ, số màu, số khối, khoang (✋ đã xếp / 🎲 game tự sinh) và chấm trạng thái (xanh/vàng/đỏ theo kiểm tra; chấm vàng cạnh tên = chưa lưu). Bấm để mở, ↑↓ để sắp xếp, ＋ màn mới, ⧉ nhân bản, 🗑 xoá.
+Danh sách màn với ảnh thu nhỏ, số màu, số khối, các cơ chế đang bật (❓ 🔗 🧱) và chấm trạng thái (xanh/vàng/đỏ theo kiểm tra; chấm vàng cạnh tên = chưa lưu). Bấm để mở, ↑↓ để sắp xếp, ＋ màn mới, ⧉ nhân bản, 🗑 xoá.
 
 **Lưu trữ:**
 
