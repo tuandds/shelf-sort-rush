@@ -4,30 +4,20 @@ Dữ liệu màn ở `LEVELS` trong `src/game/data.ts`. Mỗi màn là danh sác
 
 ## 4.1 Bảng màu <Badge type="tip" text="Live" />
 
-| Ký tự | Màu | | Ký tự | Màu |
-|---|---|---|---|---|
-| `r` | <span style="color:#ff4d5e">■</span> `#ff4d5e` đỏ | | `g` | <span style="color:#4ade80">■</span> `#4ade80` xanh lá |
-| `p` | <span style="color:#ff9bb3">■</span> `#ff9bb3` hồng | | `c` | <span style="color:#22d3ee">■</span> `#22d3ee` xanh ngọc |
-| `y` | <span style="color:#ffd23f">■</span> `#ffd23f` vàng | | `o` | <span style="color:#fb923c">■</span> `#fb923c` cam |
-| `k` | <span style="color:#5b6493">■</span> `#5b6493` xám xanh | | `b` | <span style="color:#2f6bf0">■</span> `#2f6bf0` xanh dương đậm |
-| `w` | <span style="color:#f4f6fb">■</span> `#f4f6fb` trắng | | `v` | <span style="color:#cf6bff">■</span> `#cf6bff` tím |
-
-`c` và `b` được tách hẳn (xanh ngọc và xanh dương đậm) vì trước đây hai màu này rất dễ nhầm. `k` được làm sáng để không chìm vào nền tối.
-
-**Bảng màu Marble Drop** (chữ in hoa, thêm cho Level Editor; 10 màn gốc không dùng):
+Một bảng 16 màu, lấy từ editor Marble Drop. Mười ký tự đầu (`r p y k w g c o b v`) là các màu 10 màn gốc dùng, mỗi ký tự được đổi sang màu Marble Drop gần nhất nên dữ liệu màn không đổi; sáu màu sau (`l u n m d s`) chỉ dùng trong màn tạo bằng Level Editor.
 
 | Ký tự | Màu | | Ký tự | Màu |
 |---|---|---|---|---|
-| `Y` | <span style="color:#fcfc10">■</span> `#fcfc10` yellow | | `N` | <span style="color:#c25e47">■</span> `#c25e47` brown |
-| `P` | <span style="color:#fccefd">■</span> `#fccefd` pink | | `C` | <span style="color:#bd194a">■</span> `#bd194a` crimson |
-| `R` | <span style="color:#f2447b">■</span> `#f2447b` red | | `D` | <span style="color:#27993c">■</span> `#27993c` darkgreen |
-| `L` | <span style="color:#b7fd33">■</span> `#b7fd33` lime | | `G` | <span style="color:#44f245">■</span> `#44f245` green |
-| `B` | <span style="color:#3657f9">■</span> `#3657f9` darkBlue | | `S` | <span style="color:#75fefd">■</span> `#75fefd` lightblue |
-| `U` | <span style="color:#aa44f6">■</span> `#aa44f6` purple | | `Q` | <span style="color:#db7afa">■</span> `#db7afa` lightpurple |
-| `X` | <span style="color:#5d5765">■</span> `#5d5765` black | | `O` | <span style="color:#f5ae0b">■</span> `#f5ae0b` orange |
-| `E` | <span style="color:#29c3fc">■</span> `#29c3fc` blue2 | | `W` | <span style="color:#ffffff">■</span> `#ffffff` white |
+| `r` | <span style="color:#f2447b">■</span> `#f2447b` red | | `b` | <span style="color:#3657f9">■</span> `#3657f9` darkBlue |
+| `p` | <span style="color:#fccefd">■</span> `#fccefd` pink | | `v` | <span style="color:#db7afa">■</span> `#db7afa` lightpurple |
+| `y` | <span style="color:#fcfc10">■</span> `#fcfc10` yellow | | `l` | <span style="color:#b7fd33">■</span> `#b7fd33` lime |
+| `k` | <span style="color:#5d5765">■</span> `#5d5765` black | | `u` | <span style="color:#aa44f6">■</span> `#aa44f6` purple |
+| `w` | <span style="color:#ffffff">■</span> `#ffffff` white | | `n` | <span style="color:#c25e47">■</span> `#c25e47` brown |
+| `g` | <span style="color:#44f245">■</span> `#44f245` green | | `m` | <span style="color:#bd194a">■</span> `#bd194a` crimson |
+| `c` | <span style="color:#29c3fc">■</span> `#29c3fc` blue2 | | `d` | <span style="color:#27993c">■</span> `#27993c` darkgreen |
+| `o` | <span style="color:#f5ae0b">■</span> `#f5ae0b` orange | | `s` | <span style="color:#75fefd">■</span> `#75fefd` lightblue |
 
-Một số màu Marble Drop khá gần màu gốc (ví dụ `R` red và `r` đỏ, `W` white và `w` trắng). Tránh dùng hai màu gần nhau trong cùng một màn, người chơi sẽ khó phân biệt.
+`p` pink khá gần `w` white trên nền tối; màn 4 *Đội hoa* dùng cả hai — theo dõi khi playtest.
 
 ## 4.2 Danh sách màn <Badge type="tip" text="Live" />
 

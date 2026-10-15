@@ -5,7 +5,7 @@ Mỗi phiên bản đã phát hành đều chơi được tại URL riêng. [Lan
 ## latest (main) <Badge type="tip" text="Live" />
 
 - **Level Editor** trên web (nút mới ở trang chủ), 4 cột: Colour Bank, Wave Editor (vẽ tranh pixel theo từng mảng, xem cả đội hình, bật máy bay ẩn / nối đôi / khối lớn / lõi trùm), Plane Editor (máy bay **ngẫu nhiên** hoặc **xếp tay**: màu, số đạn, ẩn, nối đôi, kéo thả giữa 3 khoang, đối chiếu đạn với số khối), Level Bank (danh sách màn, lưu trong trình duyệt kèm bản sao lưu, xuất/nhập file JSON, copy TypeScript). Chơi thử hoặc Auto Play ngay trong trình duyệt.
-- **16 màu Marble Drop** thêm vào bảng màu (chữ in hoa `Y P R L B U X E N C D G S Q O W`); Colour Bank của editor chia thành Active Palette và Bank như editor Marble Drop.
+- **Bảng màu mới:** một bảng 16 màu lấy từ editor Marble Drop thay cho 10 màu cũ. Các màn gốc giữ nguyên ký tự, chỉ đổi sang màu Marble Drop gần nhất; thêm 6 màu mới `l u n m d s`. Colour Bank của editor chia thành Active Palette và Bank như editor Marble Drop.
 - **Khoang xếp tay:** màn có thể định sẵn thứ tự máy bay; nếu hết máy bay mà tranh còn khối, game báo *HẾT MÁY BAY!* thay vì kẹt.
 - Game chơi được danh sách màn từ editor qua `?custom=1`, nhảy thẳng vào màn bằng `?level=N`, bot tự chơi bằng `?autoplay=1`.
 

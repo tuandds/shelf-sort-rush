@@ -1,12 +1,12 @@
 // Pixel Squadron level editor. Plain DOM; reads/writes the same level format the game uses (src/game/data.ts)
 // and previews boards and planes with the game's own generator (src/game/levelgen.ts).
 // Four columns: Colour Bank · Wave Editor · Plane Editor · Level Bank (+ an Organizer table view).
-import { BCOLS, BROWS, COLOR_NAMES, EDITOR_KEY, LEVELS, PAL, PAL_GROUPS, SLOTS, type BigSpec, type Level, type ManualPlane, type Wave } from '../game/data';
+import { BCOLS, BROWS, COLOR_NAMES, EDITOR_KEY, LEVELS, PAL, SLOTS, migrateLevel, type BigSpec, type Level, type ManualPlane, type Wave } from '../game/data';
 import { generateLevel, splitAmmo, type Generated } from '../game/levelgen';
 
 const $ = <T extends HTMLElement = HTMLElement>(id: string) => document.getElementById(id) as T;
 const clone = <T>(x: T): T => JSON.parse(JSON.stringify(x));
-const KEYS = Object.keys(PAL); // 10 original colours (lower case) + 16 Marble Drop colours (upper case)
+const KEYS = Object.keys(PAL); // the 16 Marble Drop colours
 const BACKUP_KEY = 'ps_editor_backups';
 const MAX_BACKUPS = 15;
 type Tool = 'paint' | 'erase' | 'fill' | 'pick';
@@ -35,6 +35,7 @@ function load(): Level[] {
 
 /** Make every wave rectangular with explicit ox/dy so the editor can work on it. */
 function normalize(L: Level): Level {
+    L = migrateLevel(clone(L));
     const out: Level = { ...clone(L), name: L.name || 'Màn mới', waves: [] };
     for (const w of L.waves || []) {
         const width = Math.max(1, ...w.art.map((r) => r.length));
@@ -200,8 +201,8 @@ function renderPalette() {
     const swatch = (k: string, i: number) => `<button class="swatch${k === colour && tool !== 'erase' ? ' on' : ''}" data-k="${k}" title="${COLOR_NAMES[k]} (${k})${i < 10 ? ` · phím ${(i + 1) % 10}` : ''}">
         <i style="background:${PAL[k]}"></i><span>${COLOR_NAMES[k]}<em>${counts[k] || 0}</em></span></button>`;
     $('palette').innerHTML = `<div class="elabel" style="margin-top:0">Active Palette</div>${active.map(swatch).join('')}
-        <div class="elabel">Bank</div>${PAL_GROUPS.map((g) => `<div class="bank-group">${g.name}</div><div class="bank-grid">${g.keys.map((k) =>
-            `<button class="bank-sw${k === colour ? ' on' : ''}${counts[k] ? ' used' : ''}" data-k="${k}" title="${COLOR_NAMES[k]} (${k})${counts[k] ? ` · ${counts[k]} khối` : ''}" style="background:${PAL[k]}"></button>`).join('')}</div>`).join('')}`;
+        <div class="elabel">Bank</div><div class="bank-grid">${KEYS.map((k) =>
+            `<button class="bank-sw${k === colour ? ' on' : ''}${counts[k] ? ' used' : ''}" data-k="${k}" title="${COLOR_NAMES[k]} (${k})${counts[k] ? ` · ${counts[k]} khối` : ''}" style="background:${PAL[k]}"></button>`).join('')}</div>`;
     $('palette').querySelectorAll<HTMLButtonElement>('[data-k]').forEach((b) => b.onclick = () => {
         colour = b.dataset.k!;
         if (tool === 'erase' || tool === 'pick') tool = 'paint';
