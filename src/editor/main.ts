@@ -395,13 +395,49 @@ function wireWaveControls() {
 const BOSS_CORE: BigSpec = { n: 1, hp: [20, 20], size: 5 };
 const isBoss = (b: BigSpec) => b.size === 5;
 
+/**
+ * Apply the level's ❓ hidden rate to hand-placed hangars: every plane below the head is hidden with that
+ * probability (same rule as the generator). Rate 0 clears all hidden flags. Linked planes are never hidden.
+ */
+function applyHidden(lv: Level) {
+    if (!lv.queues) return;
+    const rnd = seeded(++seed), rate = lv.hidden || 0;
+    lv.queues.forEach((q) => q.forEach((p, k) => {
+        if (k > 0 && !p.link && rnd() < rate) p.hidden = true; else delete p.hidden;
+    }));
+}
+
+/**
+ * Apply the level's 🔗 pair count to hand-placed hangars without reordering them: pair n joins hangars
+ * (2n)%3 and (2n+1)%3 at the first depth ≥ n where both planes exist, are unpaired and differ in colour
+ * (the generator's rule, minus its swapping). Count 0 clears all pairs.
+ */
+function applyLinks(lv: Level) {
+    if (!lv.queues) return;
+    const q = lv.queues;
+    q.forEach((h) => h.forEach((p) => { delete p.link; }));
+    let id = 1;
+    for (let n = 0; n < (lv.connected || 0); n++) {
+        const c1 = (n * 2) % 3, c2 = (n * 2 + 1) % 3;
+        for (let d = n; d < Math.min(q[c1].length, q[c2].length); d++) {
+            const a = q[c1][d], b = q[c2][d];
+            if (a.link || b.link || a.c === b.c) continue;
+            a.link = b.link = id++;
+            delete a.hidden; delete b.hidden;
+            break;
+        }
+    }
+    const made = id - 1;
+    if (made < (lv.connected || 0)) toast(`Chỉ tạo được ${made}/${lv.connected} cặp nối đôi với thứ tự máy bay hiện tại`);
+}
+
 function renderMech() {
     const lv = L();
     const big = lv.big || [];
     const on = { hidden: !!lv.hidden, linked: !!lv.connected, big: big.some((b) => !isBoss(b)), boss: big.some(isBoss) };
     const btns: [keyof typeof on, string, string, string][] = [
-        ['hidden', '❓', 'ẨN', 'Máy bay ẩn: tỉ lệ dùng khi 🎲 Random / khi game tự sinh'],
-        ['linked', '🔗', 'NỐI ĐÔI', 'Cặp nối đôi: số cặp dùng khi 🎲 Random / khi game tự sinh'],
+        ['hidden', '❓', 'ẨN', 'Máy bay ẩn: đặt dấu ẩn theo tỉ lệ lên máy bay đã xếp (và dùng cho 🎲 Random)'],
+        ['linked', '🔗', 'NỐI ĐÔI', 'Cặp nối đôi: tạo số cặp lên máy bay đã xếp (và dùng cho 🎲 Random)'],
         ['big', '🧱', 'KHỐI LỚN', 'Khối lớn 2×2…4×4 với độ bền 5–10'],
         ['boss', '👑', 'LÕI TRÙM', 'Một khối 5×5 độ bền 20 trên mỗi mảng đủ lớn']
     ];
@@ -411,8 +447,8 @@ function renderMech() {
     $('mech').querySelectorAll<HTMLButtonElement>('.mech-btn').forEach((b) => b.onclick = () => {
         const k = b.dataset.k as keyof typeof on;
         snapshot();
-        if (k === 'hidden') lv.hidden = on.hidden ? undefined : 0.4;
-        if (k === 'linked') lv.connected = on.linked ? undefined : 3;
+        if (k === 'hidden') { lv.hidden = on.hidden ? undefined : 0.4; applyHidden(lv); }
+        if (k === 'linked') { lv.connected = on.linked ? undefined : 3; applyLinks(lv); if (lv.hidden) applyHidden(lv); }
         if (k === 'big') lv.big = on.big ? big.filter(isBoss) : [...big, { n: 2, hp: [5, 10] }];
         if (k === 'boss') lv.big = on.boss ? big.filter((x) => !isBoss(x)) : [clone(BOSS_CORE), ...big];
         if (lv.big && !lv.big.length) delete lv.big;
@@ -438,9 +474,17 @@ function renderMech() {
     }
     $('mech-settings').innerHTML = parts.join('');
     const hid = $('m-hidden') as HTMLInputElement | null;
-    if (hid) { hid.onpointerdown = () => snapshot(); hid.oninput = () => { lv.hidden = +hid.value / 100; (hid.nextElementSibling as HTMLElement).textContent = `${hid.value}%`; refreshDerived(); }; }
+    if (hid) {
+        hid.onpointerdown = () => snapshot();
+        hid.oninput = () => { lv.hidden = +hid.value / 100; (hid.nextElementSibling as HTMLElement).textContent = `${hid.value}%`; if (!lv.queues) refreshDerived(); };
+        hid.onchange = () => { if (lv.queues) { applyHidden(lv); refreshDerived(); } };
+    }
     const lk = $('m-linked') as HTMLInputElement | null;
-    if (lk) { lk.onpointerdown = () => snapshot(); lk.oninput = () => { lv.connected = +lk.value; (lk.nextElementSibling as HTMLElement).textContent = lk.value; refreshDerived(); }; }
+    if (lk) {
+        lk.onpointerdown = () => snapshot();
+        lk.oninput = () => { lv.connected = +lk.value; (lk.nextElementSibling as HTMLElement).textContent = lk.value; if (!lv.queues) refreshDerived(); };
+        lk.onchange = () => { if (lv.queues) { applyLinks(lv); refreshDerived(); } };
+    }
     $('mech-settings').querySelectorAll<HTMLElement>('.big-row').forEach((row) => {
         const i = +row.dataset.i!;
         row.querySelectorAll<HTMLInputElement | HTMLSelectElement>('input,select').forEach((inp) => inp.onchange = () => {

@@ -32,7 +32,9 @@ Editor dùng **đúng định dạng màn và đúng bộ sinh màn của game**
 - **Mảng hình (wave)**: mỗi màn là nhiều mảng. Mỗi mảng có kích thước, **cột bắt đầu `ox`** và **độ lệch dọc `dy`** (âm = nằm phía trên board, trôi vào sau).
 - **Toàn đội hình trên board**: cả đội hình trên 21 cột, căn giữa như trong game. Khung xanh = 10 hàng người chơi thấy đầu tiên; ✕ đỏ = ô bị hai mảng chồng nhau; bấm vào một mảng để chọn.
 - **Cài đặt màn**: tên màn, popup *tính năng mới*.
-- **Level Mechanics Bank**: ❓ máy bay ẩn và 🔗 cặp nối đôi (thông số cho 🎲 Random và cho màn chưa xếp máy bay), 🧱 khối lớn, 👑 lõi trùm. Bấm lại để tắt.
+- **Level Mechanics Bank**: ❓ máy bay ẩn, 🔗 cặp nối đôi, 🧱 khối lớn, 👑 lõi trùm. Bấm lại để tắt.
+  - Với màn **đã xếp máy bay**, bật/chỉnh ❓ và 🔗 sẽ đặt luôn lên máy bay ở Plane Editor, **không đổi thứ tự**: ❓ đánh dấu ẩn ngẫu nhiên theo tỉ lệ cho các máy bay không đứng đầu khoang; 🔗 tạo cặp thứ n ở khoang (2n mod 3) và (2n+1 mod 3), tại vị trí sâu ≥ n đầu tiên có hai máy bay khác màu chưa ghép. Không đủ chỗ thì editor báo số cặp tạo được. Tắt cơ chế là gỡ hết dấu ẩn / cặp. Sau đó vẫn sửa tay từng máy bay được.
+  - Với màn chưa xếp máy bay, ❓ và 🔗 là thông số để game tự sinh; và luôn là thông số của nút 🎲 Random.
 
 ## 3. Plane Editor
 
