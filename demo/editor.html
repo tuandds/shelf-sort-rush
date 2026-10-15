@@ -72,6 +72,13 @@
   .swatch span { font-weight: 700; font-size: 11.5px; line-height: 1.15; flex: 1; display: flex; justify-content: space-between; align-items: center; }
   .swatch em { display: block; font-style: normal; color: var(--dim); font-size: 10px; font-weight: 600; }
   .swatch.on { border-color: var(--gold); background: #2a2208; }
+  .bank-group { color: var(--dim); font-size: 10px; font-weight: 700; margin: 6px 0 4px; }
+  .bank-grid { display: grid; grid-template-columns: repeat(auto-fill, 26px); gap: 5px; }
+  .bank-sw { width: 26px; height: 26px; border-radius: 7px; border: 2px solid transparent; padding: 0;
+    box-shadow: inset 0 -3px 0 rgba(0,0,0,.2), inset 0 3px 0 rgba(255,255,255,.25); }
+  .bank-sw.used { outline: 1.5px dashed rgba(255,255,255,.45); outline-offset: 1px; }
+  .bank-sw.on { border-color: var(--gold); }
+  .palette { gap: 5px; }
   .tools { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
   .tool { height: 40px; border-radius: 9px; border: 1.5px solid var(--line); background: var(--panel2); font-size: 17px; }
   .tool.on { border-color: var(--gold); background: #2a2208; }
@@ -202,8 +209,8 @@
     padding: 8px 14px; border-radius: 10px; font-weight: 700; opacity: 0; transition: opacity .2s; pointer-events: none; z-index: 200; }
   #toast.show { opacity: 1; }
 </style>
-  <script type="module" crossorigin src="./assets/editor-C3CzKrb_.js"></script>
-  <link rel="modulepreload" crossorigin href="./assets/levelgen-CahjsTt3.js">
+  <script type="module" crossorigin src="./assets/editor-A2vPOuZM.js"></script>
+  <link rel="modulepreload" crossorigin href="./assets/levelgen-DDtfPhYx.js">
 </head>
 <body>
 <div class="edit-header">
@@ -230,8 +237,8 @@
     <div class="palette" id="palette"></div>
     <div class="elabel">Công cụ</div>
     <div class="tools" id="tools"></div>
-    <div class="hint"><span class="kbd">1</span>–<span class="kbd">0</span> chọn màu · <span class="kbd">B</span> vẽ · <span class="kbd">E</span> tẩy · <span class="kbd">G</span> đổ màu · <span class="kbd">I</span> hút màu · <span class="kbd">Ctrl+Z</span> hoàn tác</div>
-    <div class="hint">Chuột phải trên lưới = tẩy. Màu đang chọn cũng là màu của máy bay thêm mới ở Plane Editor.</div>
+    <div class="hint"><span class="kbd">1</span>–<span class="kbd">0</span> chọn màu trong Active Palette · <span class="kbd">B</span> vẽ · <span class="kbd">E</span> tẩy · <span class="kbd">G</span> đổ màu · <span class="kbd">I</span> hút màu · <span class="kbd">Ctrl+Z</span> hoàn tác</div>
+    <div class="hint">Chuột phải trên lưới = tẩy. Bấm một màu trong Bank để vẽ bằng màu đó; vẽ xong nó vào Active Palette. Màu đang chọn cũng là màu của máy bay thêm mới ở Plane Editor.</div>
   </div>
   <div class="panel-resizer" data-target="panel-colour" data-sign="1"></div>
 
