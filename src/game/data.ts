@@ -36,21 +36,34 @@ export interface Level {
     /** Number of linked pairs placed in the queues. */
     connected?: number;
     big?: BigSpec[];
-    feature?: Feature;
+    /** Key into FEATURES: popup shown the first time this mechanic appears. */
+    feature?: string;
 }
 
-const F_HIDDEN: Feature = {
+export const F_HIDDEN: Feature = {
     key: 'hidden', icon: '❓', title: 'MÁY BAY ẨN',
     demo: [['?', 'ĐANG ẨN'], ['→', 'LÊN ĐẦU'], ['20', 'LỘ RA']],
     text: 'Một số máy bay nằm dưới hàng chờ bị ẩn màu và số đạn hiện dấu ?.\n\n' +
         'Chỉ khi lên đầu hàng nó mới lộ màu và số đạn thật. Hãy tính trước: đẩy một chiếc lên là bạn đang mở một lá bài.'
 };
-const F_LINKED: Feature = {
+export const F_LINKED: Feature = {
     key: 'linked', icon: '🔗', title: 'MÁY BAY NỐI ĐÔI',
     demo: [['🔗', 'NỐI ĐÔI'], ['2', 'CHỖ TRỐNG'], ['✂️', 'LÊN LÀ TÁCH']],
     text: 'Hai máy bay ở hai hàng khác nhau bị nối với nhau bằng dây vàng: chúng chỉ cất cánh cùng nhau, khi cả hai đã ở đầu hàng và còn 2 chỗ trống.\n\n' +
         'Lên tới vùng chiến đấu thì dây đứt — hai chiếc hoạt động độc lập như bình thường.'
 };
+
+export const F_BIG: Feature = { key: 'big', icon: '🧱', title: 'KHỐI LỚN',
+            demo: [['▣', 'ĐỘ BỀN CAO'], ['→', 'MỖI PHÁT −1'], ['💥', 'VỀ 0 THÌ VỠ']],
+            text: 'Một số khối có kích thước lớn và mang số độ bền 5–10 ở giữa — càng bền thì khối càng to (2×2, 3×3, 4×4).\n\n' +
+                'Mỗi phát đạn trúng chỉ trừ 1 độ bền; khi về 0 khối mới vỡ. Khối lớn chắn đường như khối thường, có thể khoá cả mấy cột một lúc.' };
+export const F_BOSS: Feature = { key: 'boss', icon: '👑', title: 'TRÙM CUỐI',
+            demo: [['20', 'LÕI TRÙM'], ['?', 'ẨN'], ['🔗', 'NỐI ĐÔI']],
+            text: 'Màn cuối gom cả ba thử thách: lõi trùm là khối lớn 5×5 với 20 độ bền, quanh nó là các khối lớn nhỏ hơn.\n\n' +
+                'Hàng chờ vừa có máy bay ẩn vừa có cặp nối đôi — hãy tính kỹ từng lượt cất cánh.' };
+
+/** Feature intro popups by key. */
+export const FEATURES: Record<string, Feature> = { hidden: F_HIDDEN, linked: F_LINKED, big: F_BIG, boss: F_BOSS };
 
 export const LEVELS: Level[] = [
     { name: 'Trái tim', waves: (() => { // 2 colours
@@ -72,7 +85,7 @@ export const LEVELS: Level[] = [
         }
         return out;
     })() },
-    { name: 'Đội hoa', hidden: 0.45, feature: F_HIDDEN, waves: (() => { // 5 colours + hidden planes
+    { name: 'Đội hoa', hidden: 0.45, feature: 'hidden', waves: (() => { // 5 colours + hidden planes
         // Colours run in vertical stripes so every colour is exposed often and no plane idles for long.
         const F = ['wycvpw', '.ycvp.', 'wycvpw', 'wycvpw', '.ycvp.'];
         const G = ['wpvcyw', '.pvcy.', 'wpvcyw', 'wpvcyw', '.pvcy.'];
@@ -83,7 +96,7 @@ export const LEVELS: Level[] = [
         }
         return out;
     })() },
-    { name: 'Hạm sọc', hidden: 0.4, feature: F_HIDDEN, waves: (() => { // 6 colours total, at most 4 at once
+    { name: 'Hạm sọc', hidden: 0.4, feature: 'hidden', waves: (() => { // 6 colours total, at most 4 at once
         // The colour set rotates per tier: an old colour disappears completely before a new one arrives.
         const SETS = [['r', 'o', 'y', 'g'], ['r', 'o', 'y', 'g'], ['y', 'g', 'c', 'v'], ['y', 'g', 'c', 'v'], ['c', 'v', 'y', 'g']];
         const wave = (t: number) => {
@@ -100,14 +113,14 @@ export const LEVELS: Level[] = [
         return out;
     })() },
     // ---- hard levels: the board splits into several "lanes", each colour appears in two far-apart places ----
-    { name: 'Tổ ong', connected: 4, feature: F_LINKED, waves: (() => { // 9 colours, 3 lanes
+    { name: 'Tổ ong', connected: 4, feature: 'linked', waves: (() => { // 9 colours, 3 lanes
         const G = [['r', 'o', 'r', 'y', 'o', 'y'], ['g', 'c', 'g', 'b', 'c', 'b'], ['v', 'p', 'v', 'w', 'p', 'w']];
         const box = (col: string) => { const o: string[] = []; for (let r = 0; r < 4; r++) o.push(col.repeat(4)); return o; };
         const out: Wave[] = [], ox = [0, 5, 9];
         for (let g = 0; g < 3; g++) for (let t = 0; t < 6; t++) out.push({ ox: ox[g], dy: -t * 4 - g, art: box(G[g][t]) });
         return out;
     })() },
-    { name: 'Mê cung', connected: 3, feature: F_LINKED, waves: (() => {
+    { name: 'Mê cung', connected: 3, feature: 'linked', waves: (() => {
         // Each colour fills 2 consecutive tiers (a plane empties in one go); the middle lanes bring a colour back after a 2-tier gap.
         const G = [['r', 'r', 'o', 'o', 'r', 'r'], ['g', 'g', 'c', 'c', 'g', 'g'], ['v', 'v', 'p', 'p', 'v', 'v'], ['k', 'k', 'w', 'w', 'k', 'k']];
         const box = (col: string) => { const o: string[] = []; for (let r = 0; r < 4; r++) o.push(col.repeat(3)); return o; };
@@ -116,10 +129,7 @@ export const LEVELS: Level[] = [
         return out;
     })() },
     { name: 'Hỗn chiến', big: [{ n: 2, hp: [5, 10] }],
-        feature: { key: 'big', icon: '🧱', title: 'KHỐI LỚN',
-            demo: [['▣', 'ĐỘ BỀN CAO'], ['→', 'MỖI PHÁT −1'], ['💥', 'VỀ 0 THÌ VỠ']],
-            text: 'Một số khối có kích thước lớn và mang số độ bền 5–10 ở giữa — càng bền thì khối càng to (2×2, 3×3, 4×4).\n\n' +
-                'Mỗi phát đạn trúng chỉ trừ 1 độ bền; khi về 0 khối mới vỡ. Khối lớn chắn đường như khối thường, có thể khoá cả mấy cột một lúc.' },
+        feature: 'big',
         waves: (() => { // 9x9 multi-colour Space-Invaders ships
             // Ships are drawn by ROLE: A body, B eyes, C legs, D antennae, E feet.
             const M = [
@@ -159,10 +169,7 @@ export const LEVELS: Level[] = [
     })() },
     { name: 'Trùm cuối', hidden: 0.45, connected: 3,
         big: [{ n: 1, hp: [20, 20], size: 5 }, { n: 3, hp: [6, 10] }],
-        feature: { key: 'boss', icon: '👑', title: 'TRÙM CUỐI',
-            demo: [['20', 'LÕI TRÙM'], ['?', 'ẨN'], ['🔗', 'NỐI ĐÔI']],
-            text: 'Màn cuối gom cả ba thử thách: lõi trùm là khối lớn 5×5 với 20 độ bền, quanh nó là các khối lớn nhỏ hơn.\n\n' +
-                'Hàng chờ vừa có máy bay ẩn vừa có cặp nối đôi — hãy tính kỹ từng lượt cất cánh.' },
+        feature: 'boss',
         waves: (() => {
             // Boss body 11x7 (red, yellow eyes); the lower half is striped r/y/c so 3 colours are always shootable.
             const BOSS = ['..rrrrrrr..', '.rrryyyrrr.', 'rryyyyyyyrr', 'rryyyyyyyrr', 'rycrycrycry', 'rycrycrycry', '.ycrycrycy.'];
@@ -206,3 +213,18 @@ export const FONT = '-apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI
 
 /** '#rrggbb' -> 0xrrggbb */
 export const hex = (s: string) => parseInt(s.slice(1), 16);
+
+/** localStorage key holding the level editor's level list. */
+export const EDITOR_KEY = 'ps_editor_levels';
+
+/** Built-in levels, or the level editor's list when the page is opened with ?custom=1. */
+export function loadLevels(): Level[] {
+    try {
+        if (new URLSearchParams(location.search).get('custom') === '1') {
+            const raw = localStorage.getItem(EDITOR_KEY);
+            const list = raw ? (JSON.parse(raw) as Level[]) : null;
+            if (Array.isArray(list) && list.length) return list;
+        }
+    } catch { /* bad or blocked storage: fall back to the built-in levels */ }
+    return LEVELS;
+}

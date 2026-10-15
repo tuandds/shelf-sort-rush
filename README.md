@@ -35,4 +35,6 @@ Landing page liệt kê mọi phiên bản. Chi tiết xem `docs/guide/deploymen
 | `src/scenes/Game.ts` | Logic (sinh màn, ngắm bắn, bế tắc) + vẽ + HUD |
 | `src/game/art.ts` | Vẽ máy bay (5 skin), đạn (5 loại), panel gradient |
 | `src/ui/Popups.ts` | Popup bắt đầu/thắng/thua, tính năng mới, chọn màn, tuỳ biến, toast |
+| `src/game/levelgen.ts` | Sinh board, khối lớn và máy bay từ dữ liệu màn (dùng chung cho game và editor) |
+| `editor.html`, `src/editor/main.ts` | Level Editor (`/demo/editor.html` trên site) |
 | `src/game/TextPool.ts` | Tái sử dụng Text object cho chữ vẽ mỗi frame |

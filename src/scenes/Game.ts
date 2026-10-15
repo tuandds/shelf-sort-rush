@@ -1,21 +1,13 @@
 import * as Phaser from 'phaser';
 import {
-    BCOLS, BROWS, BULLET_V, FIRE_CD, FONT, GAP, H, HUD_H, LEVELS, PAL, SLOTS, STALL_MAX, W, ZOOM, hex, type Feature
+    BCOLS, BROWS, BULLET_V, FEATURES, FIRE_CD, FONT, GAP, H, HUD_H, PAL, SLOTS, STALL_MAX, W, ZOOM, hex, loadLevels, type Feature
 } from '../game/data';
 import { dashCircle, dashLine, drawBullet, drawPlane, fillRR, gradRR, panel, strokeRR } from '../game/art';
 import { TextPool } from '../game/TextPool';
 import { Popups } from '../ui/Popups';
 
-// ---- board model ----
-/** A board cell: a normal block {c}, a big block {c,hp,w,h,big}, or a cell covered by a big block {a:[row,col]}. */
-interface Cell { c?: string; hp?: number; w?: number; h?: number; big?: boolean; a?: [number, number] }
-type Grid = (Cell | null)[][];
-interface Form { cells: Grid; w: number; h: number; ox: number; dy: number }
-interface Target { fi: number; r: number; c: number; bcol: number; key: number; col: string; hitRow: number }
+import { generateLevel, type Form, type Grid, type QPlane, type Target } from '../game/levelgen';
 
-// ---- planes ----
-/** A plane waiting in a hangar queue. */
-interface QPlane { c: string; a: number; key: number; hidden?: boolean; link?: number; reveal?: number }
 /** A plane in the air. */
 interface Plane {
     c: string; ammo: number; x: number; y: number; hx: number; hy: number; slot: number;
@@ -28,7 +20,6 @@ interface Rect { x: number; y: number; w: number; h: number }
 type Mode = 'menu' | 'play' | 'win' | 'lose';
 
 const vib = (ms: number | number[]) => { try { navigator.vibrate?.(ms); } catch { /* not supported */ } };
-const bigSize = (hp: number) => (hp <= 6 ? 2 : hp <= 8 ? 3 : 4); // higher durability = bigger block
 
 export class Game extends Phaser.Scene {
     // layout
@@ -60,6 +51,10 @@ export class Game extends Phaser.Scene {
     private paused = false;
     private seenFeature: Record<string, boolean> = {};
     private skin = 0; private ammoFx = 0;
+    private levels = loadLevels();
+    /** ?autoplay=1: a bot taps the hangars (used by the level editor). */
+    private autoplay = false;
+    private botT = 0;
 
     // display
     private gBg!: Phaser.GameObjects.Graphics;
@@ -102,9 +97,20 @@ export class Game extends Phaser.Scene {
             this.onTap(p.worldX, p.worldY);
         });
 
+        // ?level=N (1-based) jumps straight into a level; ?autoplay=1 lets a bot play it. Both come from the level editor.
+        const q = new URLSearchParams(location.search);
+        this.autoplay = q.get('autoplay') === '1';
+        if (this.autoplay) Object.keys(FEATURES).forEach((k) => { this.seenFeature[k] = true; }); // nobody to tap "ĐÃ HIỂU"
+        const start = Math.max(0, (parseInt(q.get('level') ?? '', 10) || 0) - 1);
+        if (q.has('level')) {
+            this.loadLevel(start);
+            this.mode = 'play';
+            if (this.autoplay) this.popups.toast('AUTO PLAY: bot đang chơi');
+            return;
+        }
         this.loadLevel(0);
         this.popups.showOverlay({
-            icon: '✈️', title: 'PIXEL SQUADRON', levels: LEVELS.length, lit: -1, button: 'BẮT ĐẦU',
+            icon: '✈️', title: 'PIXEL SQUADRON', levels: this.levels.length, lit: -1, button: 'BẮT ĐẦU',
             text: 'Chạm vào một khoang chứa ở dưới để cho máy bay bay lên. Nó tự bắn khối pixel cùng màu đang lộ ra ở đáy (khối có viền sáng).\n\n' +
                 'Board hiện 10 hàng khối và không tự trôi: mỗi lần hàng dưới cùng bị phá sạch, cả đội hình bước xuống 1 hàng và hàng mới hiện ra ở trên.\n\n' +
                 'Vùng chiến đấu chứa tối đa 5 máy bay. Đầy 5 mà 5 giây không phá được khối nào là thua.',
@@ -185,12 +191,12 @@ export class Game extends Phaser.Scene {
         this.paused = false;
         this.loadLevel(this.level);
         this.mode = 'play'; vib(12);
-        this.popups.toast(`Chơi lại màn ${(this.level % LEVELS.length) + 1}`);
+        this.popups.toast(`Chơi lại màn ${(this.level % this.levels.length) + 1}`);
     }
 
     private openLevels() {
         this.paused = true;
-        const info = LEVELS.map((L) => {
+        const info = this.levels.map((L) => {
             const cs = new Set<string>();
             L.waves.forEach((w) => w.art.forEach((r) => [...r].forEach((ch) => { if (ch !== '.') cs.add(ch); })));
             return { name: L.name, colors: cs.size };
@@ -248,162 +254,22 @@ export class Game extends Phaser.Scene {
 
     /* ---------- level setup ---------- */
     private loadLevel(i: number) {
-        this.level = i;
-        const L = LEVELS[i % LEVELS.length];
-        const forms: Form[] = this.forms = [];
-        let remaining = 0;
-        const count: Record<string, number> = {};
-        L.waves.forEach((w) => {
-            const art = w.art, h = art.length, wd = art[0].length;
-            const ox = w.ox === undefined ? Math.floor((BCOLS - wd) / 2) : w.ox;
-            const cells: Grid = [];
-            for (let r = 0; r < h; r++) {
-                const row: (Cell | null)[] = [];
-                for (let c = 0; c < wd; c++) {
-                    const ch = art[r][c];
-                    if (ch === '.' || !PAL[ch]) row.push(null);
-                    else { row.push({ c: ch }); remaining++; count[ch] = (count[ch] || 0) + 1; }
-                }
-                cells.push(row);
-            }
-            forms.push({ cells, w: wd, h, ox, dy: w.dy || 0 });
-        });
-        // centre the whole formation horizontally regardless of the hand-written ox values
-        {
-            let lo = 1e9, hi = -1e9;
-            forms.forEach((f) => { lo = Math.min(lo, f.ox); hi = Math.max(hi, f.ox + f.w); });
-            const off = Math.floor((BCOLS - (hi - lo)) / 2) - lo;
-            if (off) forms.forEach((f) => { f.ox += off; });
-        }
-
-        // Big Block: merge a square on the art into one block with high durability (5-6 -> 2x2, 7-8 -> 3x3, 9-10 -> 4x4).
-        // The merged block takes the area's majority colour.
-        if (L.big) {
-            forms.forEach((f) => {
-                L.big!.forEach((spec) => {
-                    for (let n = 0; n < spec.n; n++) {
-                        const [lo, hi] = spec.hp;
-                        const hp = lo + Math.floor(Math.random() * (hi - lo + 1));
-                        const sz = spec.size || bigSize(hp);
-                        if (sz > f.w || sz > f.h) continue;
-                        type Spot = { r: number; c: number; col: string };
-                        let put: Spot | null = null, fallback: Spot | null = null;
-                        for (let t = 0; t < 120 && !put; t++) {
-                            const r = Math.floor(Math.random() * (f.h - sz + 1)), c = Math.floor(Math.random() * (f.w - sz + 1));
-                            const tally: Record<string, number> = {}; let ok = true;
-                            for (let a = 0; a < sz && ok; a++) for (let b = 0; b < sz && ok; b++) {
-                                const v = f.cells[r + a][c + b];
-                                if (!v || v.a || v.big) { ok = false; break; } // a hole, or already a big block
-                                tally[v.c!] = (tally[v.c!] || 0) + 1;
-                            }
-                            if (!ok) continue;
-                            let col = '', mx = 0;
-                            for (const k in tally) if (tally[k] > mx) { mx = tally[k]; col = k; }
-                            // never leave a colour with 1..9 blocks (a plane carries at least 10 rounds)
-                            let safe = true;
-                            for (const k in tally) {
-                                const left = count[k] - tally[k] + (k === col ? hp : 0);
-                                if (left > 0 && left < 10) { safe = false; break; }
-                            }
-                            if (!safe) continue;
-                            const cand = { r, c, col };
-                            if (mx >= sz * sz * 0.6) put = cand; // mostly one colour already: looks best
-                            else if (!fallback) fallback = cand;
-                        }
-                        put = put || fallback;
-                        if (!put) continue;
-                        const { r, c, col } = put;
-                        for (let a = 0; a < sz; a++) for (let b = 0; b < sz; b++) { // give back the old cells' counts
-                            const v = f.cells[r + a][c + b]!;
-                            remaining--; count[v.c!]--;
-                            if (count[v.c!] <= 0) delete count[v.c!];
-                        }
-                        remaining += hp; count[col] = (count[col] || 0) + hp; // one block that needs hp hits
-                        f.cells[r][c] = { c: col, hp, w: sz, h: sz, big: true };
-                        for (let a = 0; a < sz; a++) for (let b = 0; b < sz; b++) if (a || b) f.cells[r + a][c + b] = { a: [r, c] };
-                    }
-                });
-            });
-        }
-        this.remaining = remaining;
-        this.total = remaining;
-        this.remColor = { ...count };
-        this.nColors = Object.keys(count).length;
-
-        // ---- generate this level's planes ----
-        // 1) simulate the order blocks will be destroyed (lowest first, left to right, across all forms)
-        const order: string[] = [];
-        {
-            const copy: Grid[] = forms.map((f) => f.cells.map((row) => row.map((v) => (v ? { ...v } : null))));
-            for (;;) {
-                let best: Target | null = null;
-                for (let bc = 0; bc < BCOLS; bc++) {
-                    const e = this.exposedAt(bc, (fi) => copy[fi], false, false);
-                    if (e && (!best || e.key > best.key)) best = e; // bc ascends -> ties keep the left one
-                }
-                if (!best) break;
-                const cell0 = copy[best.fi][best.r][best.c]!;
-                order.push(best.col);
-                if ((cell0.hp || 1) > 1) cell0.hp!--; // big block: lose durability, not broken yet
-                else if (cell0.big) {
-                    for (let a = 0; a < cell0.h!; a++) for (let b = 0; b < cell0.w!; b++) copy[best.fi][best.r + a][best.c + b] = null;
-                } else copy[best.fi][best.r][best.c] = null;
-            }
-        }
-        const posOf: Record<string, number[]> = {};
-        order.forEach((k, j) => { (posOf[k] = posOf[k] || []).push(j); });
-
-        // 2) split each colour's block count into planes of 10..20 rounds: total ammo === block count exactly
-        //    (e.g. 25 -> 15+10, 33 -> 20+13, 48 -> 20+18+10)
-        const pool: QPlane[] = [];
-        for (const k in count) {
-            let n = count[k], j = 0;
-            const chunks: number[] = [];
-            while (n >= 30) { chunks.push(20); n -= 20; }
-            if (n >= 10 && n <= 20) chunks.push(n);
-            else if (n > 20) { chunks.push(n - 10); chunks.push(10); } // 21..29
-            else if (n > 0) chunks.push(n); // fewer than 10 blocks (should not happen)
-            chunks.forEach((a) => {
-                pool.push({ c: k, a, key: posOf[k][Math.min(j, count[k] - 1)] });
-                j += a;
-            });
-        }
-        pool.sort((x, y) => x.key - y.key);
-        for (let j = 0; j < pool.length - 1; j++) if (Math.random() < 0.3) { const t = pool[j]; pool[j] = pool[j + 1]; pool[j + 1] = t; }
-
-        // 3) deal round-robin into the 3 hangars
-        const queues: QPlane[][] = this.queues = [[], [], []];
-        pool.forEach((p, j) => queues[j % 3].push(p));
-        // Hidden Plane: some planes below the head hide their colour and ammo until they reach the head.
-        if (L.hidden) queues.forEach((q) => q.forEach((p, k) => { if (k > 0 && Math.random() < L.hidden!) p.hidden = true; }));
-        // Connected Plane: pairs in two different hangars at the same depth; similar ammo, different colours.
-        if (L.connected) {
-            let id = 1;
-            for (let n = 0; n < L.connected; n++) {
-                const c1 = (n * 2) % 3, c2 = (n * 2 + 1) % 3, k = n; // each pair one step deeper than the last
-                if (c1 === c2) continue;
-                const a = queues[c1][k];
-                if (!a || a.link || queues[c2].length <= k) continue;
-                let j = -1, bestD = 1e9;
-                for (let t = k; t < queues[c2].length; t++) {
-                    const p = queues[c2][t];
-                    if (p.link || p.c === a.c) continue;
-                    const d2 = Math.abs(p.a - a.a);
-                    if (d2 < bestD) { bestD = d2; j = t; if (d2 === 0) break; }
-                }
-                if (j < 0) continue;
-                if (j !== k) { const tmp = queues[c2][k]; queues[c2][k] = queues[c2][j]; queues[c2][j] = tmp; }
-                const b = queues[c2][k];
-                a.link = b.link = id++; a.hidden = b.hidden = false;
-            }
-        }
+        const levels = this.levels;
+        this.level = i % levels.length;
+        const L = levels[this.level];
+        const gen = generateLevel(L);
+        this.forms = gen.forms;
+        this.remaining = this.total = gen.remaining;
+        this.remColor = { ...gen.count };
+        this.nColors = Object.keys(gen.count).length;
+        this.queues = gen.queues;
         this.reserved = {}; this.slots.fill(null);
         this.flying = []; this.bullets = []; this.parts = []; this.ripples = []; this.hitFlash = []; this.press = [0, 0, 0];
         this.stall = 0;
         this.shift = this.shiftTarget = BROWS - 1 - this.maxAbsRow(); // lowest block row sits on the board's bottom row
-        this.hud.lv.setText(String((i % LEVELS.length) + 1));
+        this.hud.lv.setText(String(this.level + 1));
         this.hud.name.setText(L.name);
-        if (L.feature) this.showFeature(L.feature);
+        if (L.feature && FEATURES[L.feature]) this.showFeature(FEATURES[L.feature]);
         this.layout();
         this.updateHud();
     }
@@ -544,8 +410,21 @@ export class Game extends Phaser.Scene {
     }
 
     /* ---------- simulation ---------- */
+    /** Editor bot: every 0.15 s launch a head plane that can shoot right away; if nothing is in the air, launch anything. */
+    private bot(dt: number) {
+        this.botT += dt;
+        if (this.botT < 0.15 || this.mode !== 'play') return;
+        this.botT = 0;
+        for (let c = 0; c < 3; c++) {
+            const h = this.queues[c][0];
+            if (h && this.canLaunch(c) && this.findTarget(h.c)) { this.launch(c); return; }
+        }
+        if (this.activeCount() === 0) for (let c = 0; c < 3; c++) if (this.canLaunch(c)) { this.launch(c); return; }
+    }
+
     private step(dt: number) {
         this.clock += dt;
+        if (this.autoplay) this.bot(dt);
         if (this.shake > 0) this.shake = Math.max(0, this.shake - dt * 3);
         for (let i = 0; i < 3; i++) if (this.press[i] > 0) this.press[i] = Math.max(0, this.press[i] - dt * 5);
         for (let i = this.ripples.length - 1; i >= 0; i--) { this.ripples[i].t += dt; if (this.ripples[i].t > 0.5) this.ripples.splice(i, 1); }
@@ -670,10 +549,10 @@ export class Game extends Phaser.Scene {
         if (this.mode !== 'play') return;
         this.mode = 'win'; vib([20, 50, 30]);
         this.time.delayedCall(700, () => {
-            const last = this.level >= LEVELS.length - 1;
+            const last = this.level >= this.levels.length - 1;
             this.popups.showOverlay({
-                icon: last ? '🏆' : '⭐', title: 'HOÀN THÀNH!', levels: LEVELS.length, lit: this.level,
-                text: `Bạn đã xoá sạch ${LEVELS[this.level].name}.` + (last ? '\n\nĐã hết màn — chơi lại từ đầu nhé!' : ''),
+                icon: last ? '🏆' : '⭐', title: 'HOÀN THÀNH!', levels: this.levels.length, lit: this.level,
+                text: `Bạn đã xoá sạch ${this.levels[this.level].name}.` + (last ? '\n\nĐã hết màn — chơi lại từ đầu nhé!' : ''),
                 button: last ? 'CHƠI LẠI TỪ ĐẦU' : 'MÀN TIẾP THEO ›',
                 onButton: () => { this.loadLevel(last ? 0 : this.level + 1); this.mode = 'play'; vib(15); }
             });
@@ -685,7 +564,7 @@ export class Game extends Phaser.Scene {
         this.mode = 'lose'; this.shake = 1; vib([40, 60, 40]);
         this.time.delayedCall(900, () => {
             this.popups.showOverlay({
-                icon: '🚧', title: 'BẾ TẮC!', levels: LEVELS.length, lit: this.level - 1,
+                icon: '🚧', title: 'BẾ TẮC!', levels: this.levels.length, lit: this.level - 1,
                 text: 'Vùng chiến đấu đã đầy 5 máy bay và suốt 5 giây không phá được khối nào.\n\n' +
                     'Mẹo: chỉ cho bay lên khi khối cùng màu đang lộ ra ở đáy (khối có viền sáng nhấp nháy).',
                 button: 'THỬ LẠI',

@@ -6,6 +6,7 @@
 - HUD, popup bắt đầu/thắng/thua, giới thiệu tính năng mới, chọn màn, tuỳ biến 5 skin × 5 loại đạn (lưu trong máy).
 - Rung máy, mảnh vỡ, rung màn hình.
 - Site tài liệu và phát hành các phiên bản lên GitHub Pages.
+- Level Editor trên web ([hướng dẫn](/guide/level-editor)).
 
 ## 6.2 Lộ trình <Badge type="warning" text="Coming soon" />
 

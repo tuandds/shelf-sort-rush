@@ -4,7 +4,8 @@ Mỗi phiên bản đã phát hành đều chơi được tại URL riêng. [Lan
 
 ## latest (main) <Badge type="tip" text="Live" />
 
-- Chưa có thay đổi từ v0.1.0.
+- **Level Editor** trên web (nút mới ở trang chủ): vẽ tranh pixel theo từng mảng, bật máy bay ẩn / nối đôi / khối lớn / lõi trùm, xem trước board và máy bay sinh ra, chơi thử hoặc cho bot Auto Play ngay trong trình duyệt; Organizer để sắp xếp và xuất/nhập danh sách màn.
+- Game chơi được danh sách màn từ editor qua `?custom=1`, nhảy thẳng vào màn bằng `?level=N`, bot tự chơi bằng `?autoplay=1`.
 
 [Chơi bản latest](https://tuandds.github.io/shelf-sort-rush/demo/)
 
